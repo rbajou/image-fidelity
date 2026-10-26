@@ -1,0 +1,14 @@
+names:
+  - dice
+  - iou
+  - precision
+  - recall
+  - f1
+  - ap
+  - n_pred
+  - n_gt
+  - count_error
+
+threshold: 0.5
+aggregate: mean
+compute_runtime: true

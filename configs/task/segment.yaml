@@ -1,0 +1,9 @@
+name: segment
+
+split: test
+max_samples: null
+
+save:
+  masks: true
+  results: true
+  figures: true

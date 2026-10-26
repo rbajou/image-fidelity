@@ -1,0 +1,21 @@
+# @package _global_
+
+defaults:
+  - /method@task.methods.watershed_1: watershed
+  - override /task: benchmark
+  - override /data: bbbc038
+  - override /metrics: segmentation
+  - override /degradation: gaussian_noise
+
+task:
+  max_samples: 5
+
+# degradation:
+#   sigma: 0.10
+
+run_name: segment_classical
+
+hydra:
+  sweeper:
+    params:
+      degradation.sigma: 0.01,0.03,0.05,0.1,0.2,0.5,1.0

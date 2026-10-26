@@ -1,0 +1,10 @@
+defaults:
+  - /plot@plots.metric_distributions: metric_distributions
+  - /plot@plots.metric_boxplots_by_method: metric_boxplots_by_method
+  - /plot@plots.metric_sweep: metric_sweep
+  - _self_
+
+name: plot
+
+# Run directories (containing results/) or parquet files written by benchmark/restore tasks.
+inputs: []

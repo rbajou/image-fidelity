@@ -1,0 +1,11 @@
+# @package _global_
+
+defaults:
+  - override /task: degrade
+  - override /data: bbbc038
+  - override /degradation: gaussian_noise
+
+max_samples: 8
+
+degradation:
+  sigma: 0.10

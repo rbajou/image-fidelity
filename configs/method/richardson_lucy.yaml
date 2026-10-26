@@ -1,0 +1,11 @@
+_target_: image_fidelity.restoration.classical.RichardsonLucyDeconvolution
+
+kernel:
+  _target_: numpy.array
+  object:
+    - [0.0625, 0.125, 0.0625]
+    - [0.125, 0.25, 0.125]
+    - [0.0625, 0.125, 0.0625]
+
+n_iter: 30
+eps: 1.0e-12

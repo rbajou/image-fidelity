@@ -1,0 +1,10 @@
+names:
+  - PSNR
+  - SSIM
+  - NRMSE
+  - grad_error
+  - bias
+  - flux_ratio
+
+compute_runtime: true
+aggregate: mean

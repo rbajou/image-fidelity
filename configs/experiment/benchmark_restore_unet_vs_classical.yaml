@@ -1,0 +1,52 @@
+# @package _global_
+# Benchmark of the U-Net trained by experiment=train_unet_bbbc038 against classical denoisers.
+# Classical hyper-parameters are swept: select them on `task.split=validation`, then report `task.split=test`.
+#
+#   imfid experiment=benchmark_unet_vs_classical_bbbc038 \
+#       task.split=validation run_name=bench_val
+#   imfid experiment=benchmark_unet_vs_classical_bbbc038 \
+#       task.split=test run_name=bench_test \
+#       task.methods.unet.checkpoint=outputs/train/<run>/checkpoints/best.pt
+
+defaults:
+  - /method@task.methods.unet: unet_restorer
+  - /method@task.methods.gaussian_s0p5: gaussian
+  - /method@task.methods.gaussian_s1p0: gaussian
+  - /method@task.methods.gaussian_s1p5: gaussian
+  - /method@task.methods.median_k3: median
+  - /method@task.methods.median_k5: median
+  - /method@task.methods.nlm_h0p05: nlm
+  - /method@task.methods.nlm_h0p10: nlm
+  - /method@task.methods.nlm_h0p15: nlm
+  - /method@task.methods.tv_w0p05: tv
+  - /method@task.methods.tv_w0p10: tv
+  - /method@task.methods.tv_w0p20: tv
+  - override /task: benchmark
+  - override /data: bbbc038
+  - override /metrics: restoration
+  - override /degradation: gaussian_noise
+
+task:
+  split: test
+  max_samples: null
+  methods:
+    unet:
+      model:
+        residual: true # must match the trained model (train_unet_bbbc038 uses model.residual=true)
+      checkpoint: outputs/train/2026-10-06_11-12-02_unet_bbbc038/checkpoints/best.pt
+    gaussian_s0p5: { sigma: 0.5 }
+    gaussian_s1p0: { sigma: 1.0 }
+    gaussian_s1p5: { sigma: 1.5 }
+    median_k3: { size: 3 }
+    median_k5: { size: 5 }
+    nlm_h0p05: { h: 0.05 }
+    nlm_h0p10: { h: 0.10 }
+    nlm_h0p15: { h: 0.15 }
+    tv_w0p05: { weight: 0.05 }
+    tv_w0p10: { weight: 0.10 }
+    tv_w0p20: { weight: 0.20 }
+
+degradation:
+  sigma: 0.10
+
+run_name: unet_vs_classical_bbbc038

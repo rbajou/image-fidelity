@@ -1,0 +1,22 @@
+# @package _global_
+
+defaults:
+  - /method@task.methods.richardson_lucy: richardson_lucy
+  - override /task: benchmark
+  - override /data: bbbc010
+  - override /metrics: restoration
+  - override /degradation: gaussian_noise
+
+task:
+  max_samples: 10
+  image_samples: 4
+
+degradation:
+  sigma: 0.1
+
+hydra:
+  sweeper:
+    params:
+      degradation.sigma: 0.1,0.2,0.5,1
+
+run_name: sweep_bbbc010

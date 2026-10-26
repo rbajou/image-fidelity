@@ -1,0 +1,8 @@
+name: bbbc010
+root_dir: ${paths.data_dir}/BBBC010_v1_foreground
+train_dir: null
+test_dir: null
+val_fraction: 0.15
+test_fraction: 0.15
+seed: ${seed}
+shuffle: true

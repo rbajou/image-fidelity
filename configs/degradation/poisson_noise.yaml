@@ -1,0 +1,3 @@
+_target_: image_fidelity.degradations.PoissonNoise
+
+photon_count: 30.0

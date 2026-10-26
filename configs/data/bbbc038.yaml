@@ -1,0 +1,7 @@
+root_dir: ${paths.data_dir}/bbbc038
+train_dir: stage1_train
+test_dir: stage1_test
+val_fraction: 0.15
+seed: ${seed}
+shuffle: true
+grayscale: true

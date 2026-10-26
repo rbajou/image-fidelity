@@ -1,0 +1,22 @@
+# @package _global_
+
+defaults:
+  - override /task: train
+  - override /data: bbbc038
+  - override /model: unet
+  - override /optimizer: adamw
+  - override /trainer: gpu
+  - override /metrics: restoration
+  - override /degradation: gaussian_noise
+
+task:
+  resume: true
+  checkpoint: ${oc.env:PRETRAINED_MODEL}
+
+optimizer:
+  lr: 0.00001
+
+trainer:
+  epochs: 30
+
+run_name: unet_bbbc038

@@ -1,0 +1,5 @@
+type: metric_boxplots
+source: runs
+filename: metric_boxplots_by_method.png
+metrics: null
+group_by: method

@@ -1,0 +1,41 @@
+# @package _global_
+# U-Net trained at static sigma=0.1 vs variable sigma in [0.01, 1], evaluated across noise levels:
+#   imfid -m experiment=benchmark_unet_static_vs_variable_nl
+
+defaults:
+  - /method@task.methods.unet_static_res: unet_restorer
+  - /method@task.methods.unet_variable: unet_restorer
+  - /method@task.methods.unet_variable_res: unet_restorer
+  - /method@task.methods.tv_w0p20: tv
+  - override /task: benchmark
+  - override /data: bbbc038
+  - override /metrics: restoration
+  - override /degradation: gaussian_noise
+
+task:
+  split: test
+  max_samples: null
+  methods:
+    unet_static_res:
+      model:
+        residual: true # must match the trained model (train_unet_bbbc038 uses model.residual=true)
+      checkpoint: outputs/train/2026-10-06_11-12-02_unet_bbbc038/checkpoints/best.pt
+
+    unet_variable:
+      model:
+        residual: true # must match the trained model (train_unet_bbbc038 uses model.residual=true)
+      checkpoint: outputs/train/2026-10-20_11-14-23_unet_bbbc038/checkpoints/best.pt
+
+    unet_variable_res:
+      model:
+        residual: true # must match the trained model (train_unet_bbbc038 uses model.residual=true)
+      checkpoint: outputs/train/2026-10-20_16-54-10_unet_bbbc038/checkpoints/best.pt
+
+    tv_w0p20: { weight: 0.20 }
+
+run_name: unet_static_vs_variable_nl
+
+hydra:
+  sweeper:
+    params:
+      degradation.sigma: 0.01,0.03,0.05,0.1,0.2,0.5,1.0

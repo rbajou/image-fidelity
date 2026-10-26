@@ -1,0 +1,4 @@
+_target_: image_fidelity.restoration.classical.TotalVariationDenoising
+
+weight: 0.10
+n_iter: 200

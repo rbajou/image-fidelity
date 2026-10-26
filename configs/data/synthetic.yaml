@@ -1,0 +1,9 @@
+_target_: restoration.data.SyntheticDataModule
+
+num_train: 1000
+num_val: 200
+num_test: 200
+
+image_size: [256, 256]
+channels: 1
+seed: ${seed}

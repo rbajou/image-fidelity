@@ -1,0 +1,22 @@
+name: train
+
+resume: false
+checkpoint: null
+
+# Training crops and optional test pass on the test split after training.
+patch_size: 128
+max_samples: null
+run_test: true
+save_figures: true
+test_max_samples: 20
+
+save_best: true
+
+# Noise level during training and validation (the test pass uses the degradation config).
+#   constant: the degradation config is used as is.
+#   variable: `param` of the degradation is drawn uniformly in [min, max] for each patch.
+noise:
+  mode: constant
+  param: sigma
+  min: 0.02
+  max: 0.2

@@ -1,0 +1,12 @@
+# Generic image collection: all images (png/tif/gif/jpeg/...) found recursively under root_dir.
+# Usage: data=folder data.root_dir='${paths.data_dir}/<dataset_name>'
+# Set train_dir/test_dir (relative to root_dir) only if the dataset ships predefined partitions.
+root_dir: ${paths.data_dir}/${data.name}
+name: ???
+train_dir: null
+test_dir: null
+val_fraction: 0.15
+test_fraction: 0.15
+grayscale: false
+seed: ${seed}
+shuffle: true

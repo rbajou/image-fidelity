@@ -1,0 +1,12 @@
+epochs: 100
+batch_size: 16
+num_workers: 4
+
+device: ${project.device}
+
+mixed_precision: false
+gradient_clip_norm: null
+
+early_stopping:
+  enabled: true
+  patience: 15

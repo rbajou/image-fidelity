@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - override /task: restore
+  - override /data: bbbc038
+  - override /method: nlm
+  - override /metrics: restoration
+  - override /degradation: gaussian_noise
+
+task:
+  max_samples: 100
+
+method:
+  h: 0.10
+
+degradation:
+  sigma: 0.10
+
+run_name: nlm_bbbc038

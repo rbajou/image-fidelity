@@ -1,0 +1,21 @@
+# @package _global_
+defaults:
+  - override /task: restore
+  - override /data: bbbc038
+  - override /method: unet_restorer
+  - override /metrics: restoration
+  - override /degradation: gaussian_noise
+
+task:
+  # split: test
+  max_samples: 4
+
+method:
+  model:
+    residual: true # must match the trained model (train_unet_bbbc038 uses model.residual=true)
+  checkpoint: outputs/train/2026-10-06_11-12-02_unet_bbbc038/checkpoints/best.pt
+
+degradation:
+  sigma: 1
+
+run_name: unet_bbbc038

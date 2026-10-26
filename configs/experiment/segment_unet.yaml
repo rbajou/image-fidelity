@@ -1,0 +1,14 @@
+# @package _global_
+
+defaults:
+  - override /task: segment
+  - override /data: bbbc038
+  - override /model: segmentation_unet
+  - override /trainer: gpu
+  - override /metrics: segmentation
+  - override /degradation: none
+
+task:
+  max_samples: null
+
+run_name: unet_bbbc038

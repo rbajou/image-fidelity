@@ -1,0 +1,32 @@
+defaults:
+  - task: restore
+  - data: bbbc038_small
+  - method: nlm
+  - model: null
+  - optimizer: null
+  - trainer: default
+  - metrics: restoration
+  - degradation: none
+  - experiment: null
+  - _self_
+
+seed: 42
+
+project:
+  name: image-fidelity
+  device: cpu
+
+paths:
+  data_dir: ${oc.env:DATA_DIR,./data}
+  output_dir: ${hydra:runtime.output_dir}
+  checkpoints_dir: ${paths.output_dir}/checkpoints
+
+hydra:
+  run:
+    dir: outputs/${task.name}/${now:%Y-%m-%d}_${now:%H-%M-%S}_${oc.select:run_name,${task.name}}
+  sweep:
+    dir: outputs/${task.name}/${now:%Y-%m-%d}_${now:%H-%M-%S}_${oc.select:run_name,${task.name}}
+    subdir: ${hydra.job.num}
+  callbacks:
+    aggregate_benchmark_results:
+      _target_: image_fidelity.tasks.callbacks.AggregateBenchmarkResults

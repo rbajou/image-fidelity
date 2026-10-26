@@ -1,0 +1,19 @@
+# @package _global_
+
+defaults:
+  - /method@task.methods.gaussian: gaussian
+  - /method@task.methods.median: median
+  - /method@task.methods.nlm: nlm
+  - /method@task.methods.tv: tv
+  - override /task: benchmark
+  - override /data: bbbc038
+  - override /metrics: restoration
+  - override /degradation: gaussian_noise
+
+task:
+  max_samples: 100
+
+degradation:
+  sigma: 0.10
+
+run_name: classical_bbbc038

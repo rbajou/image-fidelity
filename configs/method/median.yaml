@@ -1,0 +1,3 @@
+_target_: image_fidelity.restoration.classical.MedianFilter
+
+size: 3

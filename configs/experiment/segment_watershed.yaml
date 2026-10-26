@@ -1,0 +1,25 @@
+# @package _global_
+
+defaults:
+  - override /task: segment
+  - override /data: bbbc038
+  - override /method: watershed
+  - override /metrics: segmentation
+  - override /degradation: gaussian_noise
+
+task:
+  split: train # stage1_train : seul split avec masques de vérité terrain
+  max_samples: 5
+
+# hydra:
+#   sweeper:
+#     params:
+#       task.methods.watershed.sigma: 0.01,0.03,0.05 #,0.1,0.2,0.5,1.0
+
+hydra:
+  sweeper:
+    params:
+      method.sigma: 0.01,0.03,0.05 #,0.1,0.2,0.5,1.0
+      degradation.sigma: 0.01,0.03,0.05
+
+run_name: watershed_bbbc038

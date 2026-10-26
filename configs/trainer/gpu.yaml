@@ -1,0 +1,12 @@
+epochs: 100
+batch_size: 32
+num_workers: 8
+
+device: cuda
+
+mixed_precision: true
+gradient_clip_norm: 1.0
+
+early_stopping:
+  enabled: true
+  patience: 15

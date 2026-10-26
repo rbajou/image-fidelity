@@ -1,0 +1,12 @@
+name: degrade
+
+split: test
+max_samples: 8
+
+# Used when no `degradation=...` group is selected (degradation defaults to none).
+default_degradation:
+  _target_: image_fidelity.degradations.GaussianNoise
+  sigma: 0.10
+
+save:
+  arrays: false

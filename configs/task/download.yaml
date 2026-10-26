@@ -1,0 +1,11 @@
+name: download
+
+# Collection and dataset numbers, usually set through `imfid download bbbc 038`.
+collection: bbbc
+datasets: []
+
+# Optional filename substrings restricting which files are fetched (e.g. [stage1_train]).
+files: []
+extract: true
+keep_archives: true
+force: false

@@ -1,0 +1,5 @@
+type: metric_distributions
+source: runs
+filename: metric_distributions.png
+metrics: null
+split_by: method # one figure per value, suffixed to the filename; null for a single figure

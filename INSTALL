@@ -1,0 +1,95 @@
+# Installation
+
+Requires Python 3.10 or later and pip. The supported setup described here uses a local repository checkout and an editable installation. Run commands from the repository root.
+
+## Recommended setup
+
+Create and activate a virtual environment:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+```
+
+On Windows, activate with `.venv\Scripts\Activate.ps1` in PowerShell or `.venv\Scripts\activate.bat` in Command Prompt.
+
+Install the dependencies used by the command-line restoration and benchmark workflows:
+
+```bash
+python -m pip install -e ".[benchmark,visualization]"
+```
+
+The editable installation keeps imports linked to this checkout. Keep the checkout, including `configs/`, available while using the CLI.
+
+## Choose optional dependencies
+
+| Extra | Purpose |
+| --- | --- |
+| `benchmark` | pandas and PyArrow for Parquet tables; also needed by the current CLI imports |
+| `visualization` | Matplotlib for image previews and metric figures |
+| `learning` | PyTorch for U-Net restoration and training |
+| `tiff` | tifffile for TIFF reading/writing |
+| `volumes` | Zarr and HDF5 array readers/writers |
+| `dev` | pytest; other dependencies are needed for the complete test suite |
+
+Result tables and figures are enabled by default in restoration and benchmark tasks. Installing only the core package does not provide the recommended CLI environment.
+
+For U-Net training and evaluation:
+
+```bash
+python -m pip install -e ".[learning,benchmark,visualization]"
+```
+
+Add `tiff` for TIFF datasets. `volumes` provides format dependencies; task support for a particular volume shape must be checked separately.
+
+For library functions that use only core dependencies:
+
+```bash
+python -m pip install -e .
+```
+
+A non-editable installation can be built with `python -m pip install .`, but the current CLI locates `configs/` relative to the source layout. Do not rely on that installation for the documented command-line workflows until configuration packaging has been addressed and verified.
+
+## Verify the installation
+
+Check the import and command-line configuration discovery:
+
+```bash
+python -c "import image_fidelity; print('Import OK')"
+imfid --help
+imfid restore method=gaussian --cfg job
+```
+
+The last command prints the composed configuration without reading images or running restoration. These checks do not exercise optional outputs or training. Complete the [first restoration](README.md#your-first-restoration) to verify the data-to-results workflow.
+
+## Development and tests
+
+Install the dependencies exercised by the test suite:
+
+```bash
+python -m pip install -e ".[dev,benchmark,visualization,learning,tiff]"
+```
+
+Some dataset tests require local BBBC038 images in `data/bbbc038/stage1_train/` and `data/bbbc038/stage1_test/`. See [data preparation](configs/README.md#data-and-partitions).
+
+```bash
+python -m pytest
+```
+
+The suite currently also contains references to older experiment names. Configuration tests using those names can fail until they are updated to match `configs/experiment/`; installing more dependencies will not resolve those failures.
+
+## Troubleshooting
+
+| Symptom | Check or action |
+| --- | --- |
+| `imfid` is not found | Activate the environment used for installation; run `python -m pip --version` to check its location |
+| Missing `pandas`, Parquet engine or Matplotlib | Install `.[benchmark,visualization]` in the active environment |
+| Missing `torch` or `tifffile` | Add the `learning` or `tiff` extra |
+| Hydra cannot find the main configuration | Use the editable checkout and confirm that its `configs/config.yaml` still exists |
+| Hydra cannot find an experiment | Use the YAML filename without `.yaml`; consult the current preset table in `configs/README.md` |
+| Dataset directory or evaluation split is empty | Check `data.root_dir`, partitions and sample limits; use the first-restoration example for a folder of reference images |
+| CUDA is unavailable | Select `trainer.device=cpu` for training, `method.device=cpu` for U-Net restoration, or `project.device=cpu` for benchmark restorers using that setting |
+| A checkpoint is missing or incompatible | Supply your own checkpoint and match the training architecture, including residual prediction |
+
+For configuration recipes and output locations, continue with [configs/README.md](configs/README.md).

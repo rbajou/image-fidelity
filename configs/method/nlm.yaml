@@ -1,0 +1,6 @@
+_target_: image_fidelity.restoration.classical.NonLocalMeans
+
+patch_size: 5
+patch_distance: 6
+h: 0.10
+fast_mode: true

@@ -1,0 +1,11 @@
+name: restore
+
+split: test
+max_samples: 20
+image_samples: 4
+
+save:
+  predictions: true
+  results: true
+  images: true
+  figures: true

@@ -1,0 +1,8 @@
+name: bbbc001
+root_dir: ${paths.data_dir}/bbbc001
+train_dir: null
+test_dir: null
+val_fraction: 0.15
+test_fraction: 0.15
+seed: ${seed}
+shuffle: true
