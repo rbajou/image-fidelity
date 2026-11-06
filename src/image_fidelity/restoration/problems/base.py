@@ -12,7 +12,7 @@ class InverseProblem(ABC):
     """A forward degradation model together with the parameters classical solvers need to invert it.
 
     Subclasses wrap one (or a pipeline of) `Degradation` steps from
-    `image_fidelity.degradations` and expose the operator's parameters (PSF, mask,
+    `image_fidelity.degradation` and expose the operator's parameters (PSF, mask,
     downsampling factor, ...) so that classical model-based methods
     (Wiener, Richardson-Lucy, Tikhonov, ...) can use them explicitly, unlike
     learned methods which only see (degraded, clean) pairs.

@@ -1,1 +1,1 @@
-_target_: image_fidelity.degradations.IdentityDegradation
+_target_: image_fidelity.degradation.IdentityDegradation

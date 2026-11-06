@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional, Sequence, Tuple
+from typing import Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 from .params import RCPARAMS
@@ -111,5 +111,64 @@ def save_image_pair(
         figure.suptitle(title)
     figure.tight_layout()
     path = Path(path)
+    figure.savefig(path, dpi=100)
+    return path
+
+
+def save_segmentation_preview(
+    path: str | Path,
+    original: np.ndarray,
+    observed: np.ndarray,
+    prediction: np.ndarray,
+    ground_truth: Optional[np.ndarray] = None,
+    *,
+    image_id: str,
+    method: str,
+    degradation: Mapping[str, object],
+    scores: Optional[Mapping[str, float]] = None,
+) -> Path:
+    """Save an image, its degraded input, and ground-truth and predicted instance overlays."""
+    from skimage.segmentation import find_boundaries
+
+    _import_pyplot()
+    from matplotlib import colormaps
+    from matplotlib.figure import Figure
+
+    figure = Figure(figsize=(16, 5))
+    axes = figure.subplots(1, 4)
+    for axis, image in zip(axes, (original, observed, observed, observed)):
+        axis.imshow(image, cmap="gray" if image.ndim == 2 else None, vmin=0, vmax=1)
+        axis.set_axis_off()
+    axes[0].set_title("Original")
+    axes[1].set_title("Degraded input")
+    axes[2].set_title("Ground truth" if ground_truth is not None else "Ground truth unavailable")
+    axes[3].set_title("Prediction")
+
+    if ground_truth is not None:
+        boundaries = find_boundaries(ground_truth, mode="inner", background=0)
+        overlay = np.zeros((*boundaries.shape, 4), dtype=float)
+        overlay[boundaries] = (0, 1, 1, 1)
+        axes[2].imshow(overlay)
+
+    labels, inverse = np.unique(prediction, return_inverse=True)
+    colors = colormaps["hsv"]((np.arange(len(labels)) * 0.618033988749895) % 1)
+    colors[:, 3] = np.where(labels == 0, 0, 0.45)
+    axes[3].imshow(colors[inverse].reshape((*prediction.shape, 4)))
+    boundaries = find_boundaries(prediction, mode="inner", background=0)
+    overlay = np.zeros((*boundaries.shape, 4), dtype=float)
+    overlay[boundaries] = (1, 1, 1, 0.9)
+    axes[3].imshow(overlay)
+
+    degradation_label = ", ".join(f"{key}={value}" for key, value in degradation.items())
+    title = f"{image_id}\n{method} | {degradation_label}"
+    if scores is not None:
+        title += (
+            f"\nDice={scores['dice']:.3f} | F1={scores['f1']:.3f}"
+            f" | instances: predicted={int(scores['n_pred'])}, ground truth={int(scores['n_gt'])}"
+        )
+    figure.suptitle(title, fontsize="small")
+    figure.tight_layout(rect=(0, 0, 1, 0.85))
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     figure.savefig(path, dpi=100)
     return path

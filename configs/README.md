@@ -189,16 +189,20 @@ The finetuning preset loads model weights, then starts a new optimizer and train
 
 ## Segment instances
 
-Use the classical watershed preset on images with ground-truth masks:
+Use the classical watershed preset:
 
 ```bash
 imfid experiment=segment_watershed method.threshold=otsu
 imfid -m experiment=segment_watershed method.threshold=otsu,local
 ```
 
-The first command runs once. The second also activates the preset's stored grids for method smoothing and noise level. The current segment handler operates on the input images directly and does not apply the degradation configuration, so degradation sweeps do not measure segmentation robustness to noise.
+The first command runs once. The second also activates the preset's configured sweep of noise levels. Each image is degraded before segmentation, while metrics compare the prediction to the original ground-truth mask.
 
-The segmenter is configured under `method`, not `task.method`. Outputs include instance maps in `masks/*.npy`, Parquet score tables and figures. Samples without masks are skipped; a run with no evaluable samples raises an error.
+The segmenter is configured under `method`, not `task.method`. Outputs include instance maps in `masks/*.npy`, Parquet score tables and metric figures. By default, the first four processed images also have previews in `images/<image_id>.png`, showing the original, degraded input, ground-truth contours and predicted instances. Preview titles include the method, degradation and available segmentation scores. Instance colors are for visualization only and do not imply correspondence between predicted and ground-truth labels.
+
+Set `task.image_samples` to change the preview count, or `task.save.images=false` to disable previews. This does not change how many images are processed; use `task.max_samples` for that. Each job in a multirun writes its own previews.
+
+Images without ground-truth masks are still segmented and can have masks and previews saved; their preview indicates that ground truth is unavailable. Metrics and their tables only include annotated images. If no image has annotations, the run logs a warning and produces no metric tables or metric figures.
 
 ## Regenerate figures
 
@@ -227,11 +231,11 @@ Runs use `outputs/<task>/<date>_<time>_<run-name>/`; `run_name` defaults to the 
 | `benchmark` | Tables, per-method previews and optional predictions; same switches; predictions default to disabled             |
 | `degrade`   | Image pairs; `task.save.arrays=true` also saves degraded arrays                                                  |
 | `train`     | Checkpoints, history and figures, optional test metrics; `task.save_best`, `task.save_figures`, `task.run_test`  |
-| `segment`   | Mask arrays, tables and figures; `task.save.masks/results/figures`                                               |
+| `segment`   | Mask arrays, tables, previews and figures; `task.save.masks/results/images/figures`                              |
 | `plot`      | Figures regenerated from previous result tables                                                                  |
 | `download`  | Archives and extracted files under `paths.data_dir`                                                              |
 
-`task.image_samples` controls restoration/benchmark preview counts (default four). Restoration and benchmark runtime excludes metrics and output writing. See the [metric conventions](../README.md#reading-the-results) before comparing scores.
+`task.image_samples` controls restoration, benchmark and segmentation preview counts (default four). Restoration and benchmark runtime excludes metrics and output writing. See the [metric conventions](../README.md#reading-the-results) before comparing scores.
 
 Hydra stores the composed configuration and overrides under `.hydra/`. To rerun a saved training configuration into a new output directory, replace `YOUR_RUN` below:
 

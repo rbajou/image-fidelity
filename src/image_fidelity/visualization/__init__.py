@@ -1,6 +1,6 @@
 """Plotting helpers for image experiments."""
 
-from .images import save_before_after, save_image_pair, show_before_after
+from .images import save_before_after, save_image_pair, save_segmentation_preview, show_before_after
 from .metrics import (
     RESTORATION_METRIC_COLUMNS,
     plot_metric_boxplots,
@@ -22,6 +22,7 @@ __all__ = [
     "plot_training_curves",
     "save_before_after",
     "save_image_pair",
+    "save_segmentation_preview",
     "save_run_figures",
     "save_sweep_figures",
     "show_before_after",

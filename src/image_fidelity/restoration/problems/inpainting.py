@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional, Union
 
 import numpy as np
 
-from image_fidelity.degradations.base import as_rng
+from image_fidelity.degradation.base import as_rng
 
 from .base import InverseProblem
 

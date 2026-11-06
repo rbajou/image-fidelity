@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Union
 
 import numpy as np
 
-from image_fidelity.degradations.base import Degradation, DegradationPipeline
-from image_fidelity.degradations.noise import GaussianNoise
+from image_fidelity.degradation.base import Degradation, DegradationPipeline
+from image_fidelity.degradation.noise import GaussianNoise
 
 from .base import InverseProblem
 

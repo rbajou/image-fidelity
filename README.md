@@ -119,13 +119,13 @@ This is a one-epoch trial. For a full experiment, choose the epoch count and dev
 
 Restoration tasks treat the input images as references, synthetically degrade them, and compare the reconstruction against the reference.
 
-| Metric | Interpretation |
-| --- | --- |
-| PSNR, SSIM | Higher is better |
-| NRMSE, relative gradient error (`grad_error`) | Lower is better |
-| Signed intensity bias (`bias`) | Closer to zero is better |
-| Total flux ratio (`flux_ratio`) | Closer to one is better |
-| Runtime | Restoration time, excluding metrics and file output |
+| Metric                                        | Interpretation                                      |
+| --------------------------------------------- | --------------------------------------------------- |
+| PSNR, SSIM                                    | Higher is better                                    |
+| NRMSE, relative gradient error (`grad_error`) | Lower is better                                     |
+| Signed intensity bias (`bias`)                | Closer to zero is better                            |
+| Total flux ratio (`flux_ratio`)               | Closer to one is better                             |
+| Runtime                                       | Restoration time, excluding metrics and file output |
 
 Integer inputs are converted to floating point and divided by their dtype's maximum value. Floating-point inputs retain their intensity scale. PSNR and SSIM use a default data range of 1.0; set `+metrics.data_range=...` if your scale differs. Noise parameters must also suit that scale.
 
@@ -164,7 +164,7 @@ src/image_fidelity/
 ├── tasks/                 Workflow orchestration
 ├── io/                    Image and array readers/writers
 ├── datasets/              Loading, partitions and patches
-├── degradations/          Synthetic degradations
+├── degradation/          Synthetic degradations
 ├── restoration/           Classical and neural restoration
 ├── segmentation/          Classical segmentation and evaluation
 ├── training/              U-Net training

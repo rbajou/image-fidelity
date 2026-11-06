@@ -6,7 +6,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from image_fidelity.degradations import GaussianNoise, PoissonNoise, ReadoutNoise, SaltPepperNoise
+from image_fidelity.degradation import GaussianNoise, PoissonNoise, ReadoutNoise, SaltPepperNoise
 
 
 def test_poisson_noise_is_seeded_quantized_and_preserves_shape_dtype():

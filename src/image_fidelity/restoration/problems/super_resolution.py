@@ -7,9 +7,9 @@ from typing import Any, Dict, Optional, Union
 
 import numpy as np
 
-from image_fidelity.degradations.blur import convolve_per_channel, gaussian_kernel
-from image_fidelity.degradations.noise import GaussianNoise
-from image_fidelity.degradations.sampling import Downsample
+from image_fidelity.degradation.blur import convolve_per_channel, gaussian_kernel
+from image_fidelity.degradation.noise import GaussianNoise
+from image_fidelity.degradation.sampling import Downsample
 
 from .base import InverseProblem
 

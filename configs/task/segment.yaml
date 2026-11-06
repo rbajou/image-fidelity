@@ -2,8 +2,10 @@ name: segment
 
 split: test
 max_samples: null
+image_samples: 4
 
 save:
+  images: true
   masks: true
   results: true
   figures: true

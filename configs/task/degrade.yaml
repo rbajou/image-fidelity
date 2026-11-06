@@ -5,7 +5,7 @@ max_samples: 8
 
 # Used when no `degradation=...` group is selected (degradation defaults to none).
 default_degradation:
-  _target_: image_fidelity.degradations.GaussianNoise
+  _target_: image_fidelity.degradation.GaussianNoise
   sigma: 0.10
 
 save:
