@@ -10,6 +10,7 @@ from image_fidelity.degradations import GaussianNoise, PoissonNoise, ReadoutNois
 
 
 def test_poisson_noise_is_seeded_quantized_and_preserves_shape_dtype():
+    """Poisson noise is repeatable, quantized, and leaves its input unchanged."""
     image = np.full((32, 24, 3), 0.5, dtype=np.float32)
     original = image.copy()
 
@@ -25,6 +26,7 @@ def test_poisson_noise_is_seeded_quantized_and_preserves_shape_dtype():
 
 
 def test_gaussian_noise_is_seeded_and_has_requested_mean_and_sigma():
+    """Gaussian noise matches its configured statistics and is repeatable."""
     image = np.zeros((128, 128), dtype=np.float32)
     noise = GaussianNoise(sigma=0.1, mean=0.03, seed=11)
 
@@ -38,6 +40,7 @@ def test_gaussian_noise_is_seeded_and_has_requested_mean_and_sigma():
 
 
 def test_salt_pepper_noise_applies_configured_extreme_values():
+    """Salt-and-pepper noise uses the configured high and low values."""
     image = np.full((12, 10, 3), 0.5, dtype=np.float32)
 
     salt = SaltPepperNoise(amount=1.0, salt_vs_pepper=1.0, salt_value=0.9, seed=3)(image)
@@ -49,6 +52,7 @@ def test_salt_pepper_noise_applies_configured_extreme_values():
 
 
 def test_readout_noise_is_seeded_additive_noise_with_bias():
+    """Readout noise is repeatable, additive, and centered on its bias."""
     image = np.zeros((64, 64), dtype=np.float32)
     degradation = ReadoutNoise(sigma=0.02, bias=0.15, seed=19)
 

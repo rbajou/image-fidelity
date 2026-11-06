@@ -21,6 +21,7 @@ def _write_job_results(job_dir: Path, sigma: float, psnr: float) -> None:
 
 
 def test_aggregate_benchmark_runs_concatenates_runs_and_summaries_per_job(tmp_path):
+    """Job run and summary tables are combined while retaining their values."""
     for job_num, (sigma, psnr) in enumerate([(0.1, 24.9), (0.2, 21.3), (0.5, 14.8)]):
         _write_job_results(tmp_path / str(job_num), sigma, psnr)
 
@@ -32,7 +33,14 @@ def test_aggregate_benchmark_runs_concatenates_runs_and_summaries_per_job(tmp_pa
     summary = pd.read_parquet(tmp_path / "results" / "summary.parquet")
     assert sorted(summary["degradation_sigma"]) == [0.1, 0.2, 0.5]
     assert set(summary["degradation"]) == {"GaussianNoise"}
+    assert sorted(summary["n"]) == [1, 1, 1]
+    assert summary.set_index("degradation_sigma")["PSNR_mean"].to_dict() == {
+        0.1: 24.9,
+        0.2: 21.3,
+        0.5: 14.8,
+    }
 
 
 def test_aggregate_benchmark_runs_returns_none_without_results(tmp_path):
+    """No aggregate artifact is reported when no job has run results."""
     assert aggregate_benchmark_runs(tmp_path) is None

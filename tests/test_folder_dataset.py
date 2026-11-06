@@ -16,6 +16,7 @@ def _make(root):
 
 
 def test_folder_dataset_finds_mixed_formats_recursively(tmp_path):
+    """Folder datasets recursively discover supported image formats only."""
     _make(tmp_path)
     dataset = open_dataset(tmp_path)
     assert isinstance(dataset, ImageFolderDataset)
@@ -24,6 +25,7 @@ def test_folder_dataset_finds_mixed_formats_recursively(tmp_path):
 
 
 def test_load_experiment_split_without_predefined_partitions(tmp_path):
+    """A folder without predefined partitions is divided into all three splits."""
     _make(tmp_path)
     split = load_experiment_split(tmp_path, val_fraction=0.2, test_fraction=0.2)
     assert len(split.train) + len(split.validation) + len(split.test) == 5

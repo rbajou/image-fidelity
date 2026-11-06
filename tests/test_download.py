@@ -22,6 +22,7 @@ def _downloader(url, destination):
 
 
 def test_normalize_bbbc_id():
+    """BBBC identifiers are normalized and invalid identifiers are rejected."""
     assert normalize_bbbc_id("038") == "038"
     assert normalize_bbbc_id(38) == "038"
     assert normalize_bbbc_id("BBBC010") == "010"
@@ -30,6 +31,7 @@ def test_normalize_bbbc_id():
 
 
 def test_download_bbbc_extracts_and_filters(tmp_path):
+    """BBBC downloads extract archives and honor file filters."""
     root = download_bbbc("038", tmp_path, fetch=lambda url: PAGE, downloader=_downloader)
     assert root == tmp_path / "bbbc038"
     assert (root / "stage1_train" / "sample" / "images" / "a.png").is_file()
@@ -40,6 +42,7 @@ def test_download_bbbc_extracts_and_filters(tmp_path):
 
 
 def test_translate_download_arguments():
+    """The CLI translates download arguments into Hydra overrides."""
     assert translate_arguments(["download", "bbbc", "038", "038"][:3]) == [
         "task=download",
         "task.collection=bbbc",

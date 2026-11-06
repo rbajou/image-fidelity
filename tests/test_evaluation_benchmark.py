@@ -12,6 +12,7 @@ from image_fidelity.evaluation import Evaluator, summarize_results
 
 
 def test_evaluator_returns_common_scores_and_flat_result_record():
+    """Evaluation scores and metadata are available in a flat result record."""
     reference = np.linspace(0, 1, 64, dtype=np.float32).reshape(8, 8)
     result = Evaluator().evaluate(
         lambda observed: observed,
@@ -36,6 +37,7 @@ def test_evaluator_returns_common_scores_and_flat_result_record():
 
 
 def test_parameter_sweep_instantiates_cartesian_combinations():
+    """A parameter sweep creates one experiment for each Cartesian combination."""
     experiments = parameter_sweep(
         "test-method",
         lambda scale, iterations: lambda image: image * scale + iterations * 0,
@@ -48,6 +50,7 @@ def test_parameter_sweep_instantiates_cartesian_combinations():
 
 
 def test_summaries_preserve_method_specific_parameter_columns():
+    """Summary rows retain method-specific parameters and fill absent values."""
     summaries = summarize_results(
         [
             {"method": "rl", "iterations": 5, "PSNR": 20.0},
@@ -64,6 +67,7 @@ def test_summaries_preserve_method_specific_parameter_columns():
 
 
 def test_runner_writes_benchmark_artifact_tree(tmp_path, monkeypatch):
+    """A benchmark run writes result tables, predictions, residuals, and metadata."""
     def fake_write_results_tables(records, output_dir, group_by):
         assert records[0]["photons"] == 100
         assert records[0]["iterations"] == 0
@@ -99,6 +103,7 @@ def test_runner_writes_benchmark_artifact_tree(tmp_path, monkeypatch):
     assert (output_dir / "logs" / "benchmark.log").is_file()
 
 def test_benchmark_runner_saves_one_preview_per_experiment(tmp_path):
+    """Preview images are saved per experiment when prediction saving is disabled."""
     reference = np.linspace(0, 1, 16, dtype=np.float32).reshape(4, 4)
     samples = [BenchmarkSample(image_id=i, observed=reference * 0.5, reference=reference) for i in range(3)]
     experiments = [

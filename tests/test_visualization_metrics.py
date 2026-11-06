@@ -15,6 +15,7 @@ def _runs(methods, rows=6):
 
 
 def test_run_figures_without_method_comparison(tmp_path):
+    """Run-level plots are generated when no method comparison is requested."""
     paths = save_run_figures(_runs(["gaussian"]), tmp_path)
 
     assert [path.name for path in paths] == ["metric_distributions.png", "metric_boxplots.png"]
@@ -22,6 +23,7 @@ def test_run_figures_without_method_comparison(tmp_path):
 
 
 def test_run_figures_compare_methods_only_with_several_methods(tmp_path):
+    """Method comparison plots appear only when multiple methods are present."""
     single = save_run_figures(_runs(["gaussian"]), tmp_path / "single", boxplot_by_method=True)
     several = save_run_figures(_runs(["gaussian", "median"]), tmp_path / "several", boxplot_by_method=True)
 
@@ -30,6 +32,7 @@ def test_run_figures_compare_methods_only_with_several_methods(tmp_path):
 
 
 def test_sweep_figures_plot_each_swept_parameter(tmp_path):
+    """Sweep plotting creates a metric chart for each varying parameter."""
     summary = pd.DataFrame(
         [
             {

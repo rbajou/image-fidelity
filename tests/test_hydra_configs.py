@@ -11,6 +11,7 @@ CONFIG_DIR = Path(__file__).resolve().parents[1] / "configs"
 
 
 def test_hydra_configs_compose_classical_benchmark():
+    """The classical benchmark experiment composes its task and methods."""
     with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
         config = compose(config_name="config", overrides=["experiment=benchmark_restore_classical"])
 
@@ -20,6 +21,7 @@ def test_hydra_configs_compose_classical_benchmark():
 
 
 def test_hydra_callback_is_registered_from_tasks_package():
+    """Hydra registers the benchmark aggregation callback from the task package."""
     with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
         config = compose(config_name="config", return_hydra_config=True)
 
@@ -45,6 +47,7 @@ def test_hydra_callback_is_registered_from_tasks_package():
     ],
 )
 def test_experiment_run_names_are_included_in_output_dirs(experiment_name, expected_task, expected_run_name):
+    """Named experiments include the task and experiment name in output paths."""
     with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
         config = compose(
             config_name="config",
@@ -61,6 +64,7 @@ def test_experiment_run_names_are_included_in_output_dirs(experiment_name, expec
 
 @pytest.mark.parametrize("task_name", ["benchmark", "restore", "segment", "train"])
 def test_task_name_is_output_suffix_without_named_experiment(task_name):
+    """Task-only runs include the task name in their output directory."""
     with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
         config = compose(
             config_name="config",
@@ -74,6 +78,7 @@ def test_task_name_is_output_suffix_without_named_experiment(task_name):
 
 @pytest.mark.parametrize("method_name", ["gaussian", "nlm", "tv"])
 def test_hydra_configs_compose_classical_method_overrides(method_name):
+    """Classical restoration method overrides instantiate successfully."""
     with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
         config = compose(
             config_name="config",
@@ -86,6 +91,7 @@ def test_hydra_configs_compose_classical_method_overrides(method_name):
 
 
 def test_hydra_config_instantiates_richardson_lucy():
+    """The Richardson-Lucy config creates a normalized kernel and iteration count."""
     with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
         config = compose(config_name="config", overrides=["method=richardson_lucy"])
 
@@ -98,6 +104,7 @@ def test_hydra_config_instantiates_richardson_lucy():
 
 
 def test_hydra_config_instantiates_neural_restorer_and_model():
+    """The U-Net restoration config creates a TorchRestorer with a U-Net model."""
     with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
         config = compose(
             config_name="config",
