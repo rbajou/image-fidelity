@@ -99,14 +99,16 @@ Select a preset with `imfid experiment=<name>`. The name is the filename under `
 | `restore_nlm`                                  | NLM restoration on BBBC038                                                                                 |
 | `benchmark_restore_classical`                  | Gaussian, median, NLM and TV comparison on BBBC038                                                         |
 | `benchmark_restore_sweep`                      | Richardson–Lucy on BBBC010 across Gaussian noise levels; requires `-m` and an explicit data-path check     |
-| `train_unet`                                   | Residual U-Net training on BBBC038; defaults to GPU                                                        |
+| `train_restoration_unet`                       | Residual U-Net training on BBBC038; defaults to GPU                                                        |
+| `train_segmentation_unet`                      | Binary U-Net segmentation training on annotated BBBC038; defaults to GPU                                   |
 | `finetune_unet`                                | Load initial weights and train at a lower learning rate; requires a checkpoint and matching model settings |
 | `restore_unet`                                 | BBBC038 U-Net restoration; override the preset's local checkpoint path                                     |
 | `benchmark_restore_unet_vs_classical`          | U-Net/classical comparison on BBBC038; override the checkpoint path                                        |
 | `benchmark_restore_unet_static_vs_variable_nl` | Comparison of several trained U-Nets across noise levels; requires three supplied checkpoints and `-m`     |
 | `segment_watershed`                            | Classical instance segmentation on BBBC038 training images                                                 |
+| `segment_unet`                                 | Binary U-Net inference with connected-component instance labels; requires a checkpoint                     |
 
-`degrade_gaus` is a preview preset; its sample count should be set with `task.max_samples` (its root-level `max_samples` does not control the loader). `segment_unet`, the `segmentation_unet` model and the `dncnn` model are placeholders. `benchmark_segment_classical` targets the restoration benchmark handler and is not a supported segmentation comparison recipe.
+`degrade_gaus` is a preview preset; its sample count should be set with `task.max_samples` (its root-level `max_samples` does not control the loader). The `dncnn` model is a placeholder. `benchmark_segment_classical` targets the restoration benchmark handler and is not a supported segmentation comparison recipe.
 
 ## Restore and compare
 
@@ -186,6 +188,28 @@ imfid experiment=benchmark_restore_unet_vs_classical task.split=test \
 ```
 
 The finetuning preset loads model weights, then starts a new optimizer and training history; it does not resume the complete optimizer state. Supply `task.checkpoint` and matching `model.*` settings explicitly.
+
+## Train and use a segmentation U-Net
+
+With annotated BBBC038 training images prepared and `.[learning,benchmark,visualization]` installed:
+
+```bash
+imfid experiment=train_segmentation_unet trainer.device=cpu \
+  trainer.epochs=1 trainer.num_workers=0
+```
+
+The shared U-Net outputs one logit per pixel and is trained with binary cross-entropy against `mask > 0`. Random crops, rotations and flips are applied jointly to images and masks; validation uses deterministic center crops. Training requires an annotation for every selected training and validation image. The default `degradation=none` can be replaced by a configured degradation applied to the image only. Training saves `best.pt`, `last.pt`, and `results/history.json` with loss, binary Dice and IoU.
+
+The optional post-training test evaluates full images as instances and saves `results/test_metrics.json`. The default BBBC038 test partition may have no masks: in that case it logs warnings and does not produce test metrics. Set `task.run_test=false` to skip this pass, or `task.test_split=validation` for a diagnostic on annotated validation data (this is **not** an independent test, since validation also selects the best model).
+
+Use the trained checkpoint with the same model settings as during training:
+
+```bash
+imfid experiment=segment_unet method.checkpoint=/absolute/path/to/best.pt \
+  project.device=cpu task.split=validation
+```
+
+`method.threshold` is a foreground probability threshold (default `0.5`); `method.connectivity` is `1` for 4-neighbor or `2` for 8-neighbor connected components. Training test evaluation uses the corresponding `task.threshold` and `task.connectivity` settings. Each component becomes one instance label. Touching objects can therefore be merged: this baseline is not a dedicated instance-separation model. Output masks and existing instance metrics use the standard segmentation task. To evaluate independent held-out images, provide an annotated test split.
 
 ## Segment instances
 

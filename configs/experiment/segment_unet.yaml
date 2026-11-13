@@ -3,8 +3,8 @@
 defaults:
   - override /task: segment
   - override /data: bbbc038
+  - override /method: unet_segmenter
   - override /model: segmentation_unet
-  - override /trainer: gpu
   - override /metrics: segmentation
   - override /degradation: none
 

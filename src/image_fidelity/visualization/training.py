@@ -17,14 +17,16 @@ CURVE_METRICS = {
 BOXPLOT_METRICS = {"psnr": "PSNR (dB)", "ssim": "SSIM", "mse": "MSE", "mae": "MAE"}
 
 
-def plot_training_curves(history: Sequence[Mapping[str, float]], output_dir: str | Path) -> list[Path]:
+def plot_training_curves(
+    history: Sequence[Mapping[str, float]], output_dir: str | Path, labels: Mapping[str, str] | None = None,
+) -> list[Path]:
     """One figure per metric, train and validation on the same axes. ``history`` rows hold ``train_<m>``/``val_<m>``."""
     plt = _import_pyplot()
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     epochs = [row["epoch"] + 1 for row in history]
     paths = []
-    for key, label in CURVE_METRICS.items():
+    for key, label in (CURVE_METRICS if labels is None else labels).items():
         fig, ax = plt.subplots(figsize=(6, 4))
         for split in ("train", "val"):
             ax.plot(epochs, [row[f"{split}_{key}"] for row in history], marker="o", markersize=3, label=split)

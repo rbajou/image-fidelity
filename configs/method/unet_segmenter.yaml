@@ -1,0 +1,6 @@
+_target_: image_fidelity.segmentation.nn.TorchSegmenter
+model: ${model}
+checkpoint: ???
+device: ${project.device}
+threshold: 0.5
+connectivity: 2

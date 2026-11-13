@@ -115,6 +115,8 @@ imfid experiment=train_unet trainer.device=cpu trainer.epochs=1 trainer.num_work
 
 This is a one-epoch trial. For a full experiment, choose the epoch count and device explicitly. The preset uses residual prediction; restoration must load a matching model and a checkpoint from your run. See the [training and checkpoint recipes](configs/README.md#train-and-evaluate-a-u-net).
 
+The same 2D U-Net architecture can also be trained for binary segmentation. See the [segmentation training and inference recipe](configs/README.md#train-and-use-a-segmentation-u-net). Connected components convert foreground predictions to instance labels; touching nuclei may be merged.
+
 ## Reading the results
 
 Restoration tasks treat the input images as references, synthetically degrade them, and compare the reconstruction against the reference.

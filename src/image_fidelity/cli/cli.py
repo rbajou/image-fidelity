@@ -12,7 +12,7 @@ from omegaconf import DictConfig
 from image_fidelity.tasks import dispatch
 
 CONFIG_DIR = Path(__file__).resolve().parents[3] / "configs"
-TASKS = ("restore", "benchmark", "train", "plot", "download")
+TASKS = ("restore", "segment", "benchmark", "train", "plot", "download")
 HYDRA_FLAGS_WITH_VALUE = {"--config-path", "-cp", "--config-name", "-cn", "--config-dir", "-cd"}
 
 

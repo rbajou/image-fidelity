@@ -1,4 +1,5 @@
 name: train
+objective: restoration
 
 resume: false
 checkpoint: null

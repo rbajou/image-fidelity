@@ -1,0 +1,13 @@
+name: train
+objective: segmentation
+resume: false
+checkpoint: null
+patch_size: 128
+max_samples: null
+run_test: true
+test_split: test
+test_max_samples: 20
+save_figures: true
+save_best: true
+threshold: 0.5
+connectivity: 2
