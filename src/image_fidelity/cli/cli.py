@@ -13,6 +13,8 @@ from image_fidelity.tasks import dispatch
 
 CONFIG_DIR = Path(__file__).resolve().parents[3] / "configs"
 TASKS = ("restore", "segment", "benchmark", "train", "plot", "download")
+# Leading task names whose Hydra task group has a different name; `train` keeps selecting restoration training.
+TASK_GROUPS = {"train": "train_restoration"}
 HYDRA_FLAGS_WITH_VALUE = {"--config-path", "-cp", "--config-name", "-cn", "--config-dir", "-cd"}
 
 
@@ -37,7 +39,7 @@ def translate_arguments(arguments: list[str]) -> list[str]:
     task = None
     if arguments and arguments[0] in TASKS:
         task = arguments.pop(0)
-        arguments.insert(0, f"task={task}")
+        arguments.insert(0, f"task={TASK_GROUPS.get(task, task)}")
 
     if task == "benchmark":
         translated = []

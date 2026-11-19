@@ -1,9 +1,9 @@
 # @package _global_
 
 defaults:
-  - override /task: train
+  - override /task: train_restoration
   - override /data: bbbc038
-  - override /model: unet
+  - override /model: restoration_unet
   - override /optimizer: adamw
   - override /trainer: gpu
   - override /metrics: restoration

@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Callable, Dict, Iterable, Optional
 
 import numpy as np
+from scipy.optimize import linear_sum_assignment
 
 from ..metrics.segmentation import dice_coefficient, jaccard_index
 
@@ -23,6 +24,19 @@ def _iou_matrix(pred: np.ndarray, gt: np.ndarray) -> np.ndarray:
     return iou[pred_ids != 0][:, gt_ids != 0]
 
 
+def _count_matches(iou: np.ndarray, threshold: float) -> int:
+    """Taille d'un appariement un-à-un maximal des paires dont l'IoU dépasse `threshold`.
+
+    Une comparaison seuillée seule peut compter un objet deux fois : avec un seuil d'IoU
+    inclusif à 0.5, un objet prédit qui fusionne deux objets égaux atteint exactement 0.5 avec chacun.
+    """
+    candidates = iou > threshold
+    if not candidates.any():
+        return 0
+    rows, cols = linear_sum_assignment(candidates.astype(float), maximize=True)
+    return int(candidates[rows, cols].sum())
+
+
 def evaluate_instances(
     prediction: np.ndarray,
     ground_truth: np.ndarray,
@@ -30,8 +44,8 @@ def evaluate_instances(
 ) -> Dict[str, float]:
     """Métriques par image : Dice/IoU du masque binaire, comptage, P/R/F1 à IoU=0.5 et AP moyenne (style DSB 2018).
 
-    Pour un seuil d'IoU >= 0.5, l'appariement prédiction/vérité terrain est
-    unique, donc le calcul est exact et sans appariement glouton.
+    Chaque objet prédit et chaque objet de vérité terrain sont appariés au plus
+    une fois ; l'appariement est un-à-un maximal, sans heuristique gloutonne.
     """
     if prediction.shape != ground_truth.shape:
         raise ValueError(f"Formes différentes : {prediction.shape} vs {ground_truth.shape}")
@@ -39,7 +53,7 @@ def evaluate_instances(
     n_pred, n_gt = iou.shape
 
     def prf(threshold: float) -> tuple[float, float, float, float]:
-        tp = int((iou > threshold).sum()) if iou.size else 0
+        tp = _count_matches(iou, threshold) if iou.size else 0
         fp, fn = n_pred - tp, n_gt - tp
         denom = tp + fp + fn
         ap = tp / denom if denom else 1.0

@@ -46,6 +46,7 @@ def test_shared_unet_is_backward_compatible():
     assert translate_arguments(["segment", "method=unet_segmenter"]) == [
         "task=segment", "method=unet_segmenter"
     ]
+    assert translate_arguments(["train", "trainer.epochs=1"]) == ["task=train_restoration", "trainer.epochs=1"]
 
 
 def test_patch_dataset_keeps_image_and_mask_aligned():
@@ -163,7 +164,7 @@ def test_restoration_training_still_uses_shared_engine(tmp_path):
     _make_dataset(data)
     output = tmp_path / "restore_train"
     config = _compose(
-        "experiment=train_unet", f"data.root_dir={data}", "data.val_fraction=0.34",
+        "experiment=train_restoration_unet", f"data.root_dir={data}", "data.val_fraction=0.34",
         "trainer.device=cpu", "trainer.epochs=1", "trainer.batch_size=2",
         "trainer.num_workers=0", "task.patch_size=16", "task.save_figures=false",
         "model.base_channels=4", "model.depth=2", "model.normalization=none",

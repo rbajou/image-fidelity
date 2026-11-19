@@ -18,17 +18,17 @@ task:
   methods:
     unet_static_res:
       model:
-        residual: true # must match the trained model (train_unet_bbbc038 uses model.residual=true)
+        residual: true # must match the trained model (train_restoration_unet uses model.residual=true)
       checkpoint: outputs/train/2026-10-06_11-12-02_unet_bbbc038/checkpoints/best.pt
 
     unet_variable:
       model:
-        residual: true # must match the trained model (train_unet_bbbc038 uses model.residual=true)
+        residual: true # must match the trained model (train_restoration_unet uses model.residual=true)
       checkpoint: outputs/train/2026-10-20_11-14-23_unet_bbbc038/checkpoints/best.pt
 
     unet_variable_res:
       model:
-        residual: true # must match the trained model (train_unet_bbbc038 uses model.residual=true)
+        residual: true # must match the trained model (train_restoration_unet uses model.residual=true)
       checkpoint: outputs/train/2026-10-20_16-54-10_unet_bbbc038/checkpoints/best.pt
 
     tv_w0p20: { weight: 0.20 }

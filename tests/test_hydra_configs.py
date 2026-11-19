@@ -43,7 +43,7 @@ def test_hydra_callback_is_registered_from_tasks_package():
         ("restore_unet", "restore", "unet_bbbc038"),
         ("segment_unet", "segment", "unet_bbbc038"),
         ("segment_watershed", "segment", "watershed_bbbc038"),
-        ("train_unet", "train", "unet_bbbc038"),
+        ("train_restoration_unet", "train", "unet_bbbc038"),
     ],
 )
 def test_experiment_run_names_are_included_in_output_dirs(experiment_name, expected_task, expected_run_name):
@@ -62,13 +62,22 @@ def test_experiment_run_names_are_included_in_output_dirs(experiment_name, expec
     assert config.hydra.sweep.dir == config.hydra.run.dir
 
 
-@pytest.mark.parametrize("task_name", ["benchmark", "restore", "segment", "train"])
-def test_task_name_is_output_suffix_without_named_experiment(task_name):
+@pytest.mark.parametrize(
+    ("task_group", "task_name"),
+    [
+        ("benchmark", "benchmark"),
+        ("restore", "restore"),
+        ("segment", "segment"),
+        ("train_restoration", "train"),
+        ("train_segmentation", "train"),
+    ],
+)
+def test_task_name_is_output_suffix_without_named_experiment(task_group, task_name):
     """Task-only runs include the task name in their output directory."""
     with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
         config = compose(
             config_name="config",
-            overrides=[f"task={task_name}"],
+            overrides=[f"task={task_group}"],
             return_hydra_config=True,
         )
 

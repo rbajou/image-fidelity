@@ -28,7 +28,7 @@ from image_fidelity.metrics import (
     psnr,
     ssim,
 )
-
+from image_fidelity.segmentation.evaluation import evaluate_instances
 
 # Level 1 - image quality
 
@@ -110,6 +110,21 @@ def test_instance_count_error_and_detection_metrics():
     scores = detection_precision_recall_f1(prediction, ground_truth, iou_threshold=0.5)
     assert scores["precision"] == 1.0
     assert scores["recall"] == 0.5
+
+
+def test_evaluate_instances_matches_each_object_at_most_once():
+    """A prediction merging two equal objects (IoU exactly 0.5 with each) yields one true positive."""
+    ground_truth = np.zeros((40, 40), dtype=np.int32)
+    ground_truth[5:20, 5:20] = 1
+    ground_truth[5:20, 20:35] = 2
+    prediction = (ground_truth > 0).astype(np.int32)
+
+    scores = evaluate_instances(prediction, ground_truth)
+
+    assert scores["precision"] == 1.0
+    assert scores["recall"] == 0.5
+    assert 0.0 <= scores["f1"] <= 1.0
+    assert scores["ap"] <= scores["f1"]
 
 
 def test_measurement_relative_error():

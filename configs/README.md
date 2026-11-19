@@ -24,10 +24,10 @@ Inspect a configuration before running it:
 
 ```bash
 imfid restore method=gaussian degradation=gaussian_noise --cfg job
-imfid experiment=train_unet trainer.device=cpu --cfg job
+imfid experiment=train_restoration_unet trainer.device=cpu --cfg job
 ```
 
-`imfid restore`, `benchmark`, `train`, `plot` and `download` support leading task names. For degradation and segmentation, use `imfid task=degrade` and `imfid task=segment`, or an experiment preset.
+`imfid restore`, `benchmark`, `train`, `plot` and `download` support leading task names. `imfid train` selects restoration training (`task=train_restoration`); for segmentation training use `imfid experiment=train_segmentation_unet` or `task=train_segmentation`. For degradation and segmentation, use `imfid task=degrade` and `imfid task=segment`, or an experiment preset.
 
 The default configuration selects `task=restore`, `data=bbbc038_small`, `method=nlm` and `degradation=none`. A restoration run therefore needs an explicit degradation to evaluate noise removal.
 
@@ -127,6 +127,19 @@ imfid benchmark data=bbbc038_small degradation=gaussian_noise method=gaussian,me
 
 The leading `benchmark` command maps that list to `task.methods`; all restorers share the degraded samples. This shorthand is specific to `imfid benchmark`. `imfid task=benchmark method=gaussian,median,nlm` does not perform the same translation.
 
+## Preview a degradation
+
+Run the degradation task to inspect reference/degraded image pairs without restoring them:
+
+```bash
+imfid task=degrade \
+  data=folder data.name=my_images data.grayscale=true \
+  data.val_fraction=0 data.test_fraction=1 \
+  degradation=poisson_noise
+```
+
+By default, the preview includes up to eight samples. See [data and partitions](#data-and-partitions) to configure the input images.
+
 ## Parameter sweeps
 
 Comma-separated overrides automatically enable multirun. An explicit `-m` is also accepted:
@@ -148,12 +161,12 @@ Check that this path matches the extracted archive; the preset's original data r
 
 Each job writes into a numbered directory. When result tables are available, a Hydra callback concatenates them into the sweep root's `results/runs.parquet`, writes grouped `summary.parquet`, and generates `figures/metrics_vs_<parameter>.png`. Keep the benchmark and visualization extras installed for this aggregation.
 
-## Train and evaluate a U-Net
+## Train and evaluate a restoration U-Net
 
 Install `.[learning,benchmark,visualization]` as described in [INSTALL](../INSTALL). Prepare BBBC038, then try one epoch on CPU:
 
 ```bash
-imfid experiment=train_unet trainer.device=cpu trainer.epochs=1 trainer.num_workers=0
+imfid experiment=train_restoration_unet trainer.device=cpu trainer.epochs=1 trainer.num_workers=0
 ```
 
 The preset uses a 2D U-Net with residual prediction, random 128 × 128 crops and Gaussian noise. It defaults to 100 epochs and CUDA; choose settings appropriate to your machine. Validation runs each epoch. Training saves `checkpoints/best.pt` and `checkpoints/last.pt`, then evaluates the best weights on the test split; disable that pass with `task.run_test=false`.
@@ -161,7 +174,7 @@ The preset uses a 2D U-Net with residual prediction, random 128 × 128 crops and
 To train with a noise level drawn separately for each patch:
 
 ```bash
-imfid experiment=train_unet trainer.device=cpu \
+imfid experiment=train_restoration_unet trainer.device=cpu \
   task.noise.mode=variable task.noise.param=sigma \
   task.noise.min=0.02 task.noise.max=0.2
 ```
@@ -259,7 +272,7 @@ Runs use `outputs/<task>/<date>_<time>_<run-name>/`; `run_name` defaults to the 
 | `plot`      | Figures regenerated from previous result tables                                                                  |
 | `download`  | Archives and extracted files under `paths.data_dir`                                                              |
 
-`task.image_samples` controls restoration, benchmark and segmentation preview counts (default four). Restoration and benchmark runtime excludes metrics and output writing. See the [metric conventions](../README.md#reading-the-results) before comparing scores.
+`task.image_samples` controls restoration, benchmark and segmentation preview counts (default four). Restoration and benchmark runtime excludes metrics and output writing. See the [results guide](../docs/reading-results.md) before comparing scores.
 
 Hydra stores the composed configuration and overrides under `.hydra/`. To rerun a saved training configuration into a new output directory, replace `YOUR_RUN` below:
 
