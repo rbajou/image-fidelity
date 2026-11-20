@@ -1,7 +1,6 @@
-"""Common per-image and per-method restoration evaluation API."""
+"""Shared result aggregation and tabular evaluation helpers."""
 
-from .evaluator import Evaluator, RestorationMethod
 from .results import EvaluationResult
 from .statistics import select_group_columns, summarize_results
 
-__all__ = ["Evaluator", "EvaluationResult", "RestorationMethod", "select_group_columns", "summarize_results"]
+__all__ = ["EvaluationResult", "select_group_columns", "summarize_results"]

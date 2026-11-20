@@ -27,9 +27,11 @@ imfid restore method=gaussian degradation=gaussian_noise --cfg job
 imfid experiment=train_restoration_unet trainer.device=cpu --cfg job
 ```
 
-`imfid restore`, `benchmark`, `train`, `plot` and `download` support leading task names. `imfid train` selects restoration training (`task=train_restoration`); for segmentation training use `imfid experiment=train_segmentation_unet` or `task=train_segmentation`. For degradation and segmentation, use `imfid task=degrade` and `imfid task=segment`, or an experiment preset.
+`imfid restore`, `benchmark_restore`, `benchmark_segment`, `train`, `plot` and `download` support leading task names. `imfid benchmark` remains a shorthand alias for restoration benchmarking. `imfid train` selects restoration training (`task=train_restoration`); for segmentation training use `imfid experiment=train_segmentation_unet` or `task=train_segmentation`. For degradation and segmentation, use `imfid task=degrade` and `imfid task=segment`, or an experiment preset.
 
 The default configuration selects `task=restore`, `data=bbbc038_small`, `method=nlm` and `degradation=none`. A restoration run therefore needs an explicit degradation to evaluate noise removal.
+
+N.B. Hydra supports shell completion for configuration groups such as `experiment`; run `imfid --hydra-help` for shell-specific installation instructions.
 
 ## Data and partitions
 
@@ -105,10 +107,12 @@ Select a preset with `imfid experiment=<name>`. The name is the filename under `
 | `restore_unet`                                 | BBBC038 U-Net restoration; override the preset's local checkpoint path                                     |
 | `benchmark_restore_unet_vs_classical`          | U-Net/classical comparison on BBBC038; override the checkpoint path                                        |
 | `benchmark_restore_unet_static_vs_variable_nl` | Comparison of several trained U-Nets across noise levels; requires three supplied checkpoints and `-m`     |
+| `benchmark_segment_classical`                  | Watershed segmentation benchmark across noise levels; requires annotated samples                           |
+| `benchmark_segment_unet_vs_classical`          | U-Net/watershed segmentation benchmark on BBBC038; requires a checkpoint and annotated samples              |
 | `segment_watershed`                            | Classical instance segmentation on BBBC038 training images                                                 |
 | `segment_unet`                                 | Binary U-Net inference with connected-component instance labels; requires a checkpoint                     |
 
-`degrade_gaus` is a preview preset; its sample count should be set with `task.max_samples` (its root-level `max_samples` does not control the loader). The `dncnn` model is a placeholder. `benchmark_segment_classical` targets the restoration benchmark handler and is not a supported segmentation comparison recipe.
+`degrade_gaus` is a preview preset; its sample count should be set with `task.max_samples` (its root-level `max_samples` does not control the loader). The `dncnn` model is a placeholder.
 
 ## Restore and compare
 
@@ -125,7 +129,7 @@ To compare methods without an experiment preset:
 imfid benchmark data=bbbc038_small degradation=gaussian_noise method=gaussian,median,nlm
 ```
 
-The leading `benchmark` command maps that list to `task.methods`; all restorers share the degraded samples. This shorthand is specific to `imfid benchmark`. `imfid task=benchmark method=gaussian,median,nlm` does not perform the same translation.
+The leading `benchmark` command maps that list to `task.methods`; all restorers share the degraded samples. `benchmark_restore` is the explicit task name; `benchmark` remains an alias. Both `benchmark_restore` and `benchmark_segment` accept the leading `method=a,b,c` shorthand to compare configured method groups. `imfid task=benchmark_restore method=gaussian,median,nlm` does not apply this translation.
 
 ## Preview a degradation
 
@@ -241,6 +245,23 @@ Set `task.image_samples` to change the preview count, or `task.save.images=false
 
 Images without ground-truth masks are still segmented and can have masks and previews saved; their preview indicates that ground truth is unavailable. Metrics and their tables only include annotated images. If no image has annotations, the run logs a warning and produces no metric tables or metric figures.
 
+## Benchmark segmentation methods
+
+Use the segmentation benchmark to compare methods such as the trained U-Net and classical watershed on the **same degraded images**:
+
+```bash
+imfid experiment=benchmark_segment_unet_vs_classical \
+  task.split=validation \
+  task.methods.unet.checkpoint=/absolute/path/to/best.pt \
+  project.device=cpu
+```
+
+Every selected sample must have a ground-truth instance mask. Unlike the single-method `segment` task, a segmentation benchmark fails if even one selected sample is unannotated, so each method is scored on the same images. BBBC038 validation samples are drawn from annotated `stage1_train`; the official `stage1_test` partition generally has no masks and cannot be used for scoring. To report final test performance, provide a separate annotated test split and set `task.split=test`.
+
+The benchmark reports the configured segmentation metrics (Dice, IoU, instance precision/recall/F1, AP and count error), runtime, per-image prediction masks, result tables and previews. Use `benchmark_segment_classical` for a watershed-only noise-level sweep. Restoration benchmarks remain separate under `benchmark_restore`; they compare reconstructed images using pixel-fidelity metrics.
+
+For both benchmark types, `figures/metric_distributions_<method>.png` shows per-image metric distributions for each method separately. The `metric_boxplots_by_method.png` figure compares methods when more than one is present.
+
 ## Regenerate figures
 
 `plot` reads saved tables without repeating restoration. Replace the example run path with an existing run directory:
@@ -280,5 +301,18 @@ Hydra stores the composed configuration and overrides under `.hydra/`. To rerun 
 imfid --config-path "$PWD/outputs/train/YOUR_RUN/.hydra" --config-name config \
   hydra.run.dir=outputs/train/YOUR_RUN_repro
 ```
+
+This reruns training from its initial weights; it does not continue from a checkpoint. 
+
+To continue from the latest saved weights after an interruption, use the saved configuration and set `task.resume=true` and `task.checkpoint` to the run's `last.pt`:
+
+```bash
+imfid --config-path "$PWD/outputs/train/YOUR_RUN/.hydra" --config-name config \
+  task.resume=true \
+  task.checkpoint="$PWD/outputs/train/YOUR_RUN/checkpoints/last.pt" \
+  hydra.run.dir=outputs/train/YOUR_RUN_resume
+```
+
+This starts a new run and a new optimizer/history from those weights. `trainer.epochs` is the number of epochs to run in the new run, not a target total epoch; optimizer state and the previous epoch count are not restored. `last.pt` is saved after each completed epoch, so an interruption during an epoch resumes from the preceding saved weights.
 
 Keep the original data, code version, dependencies and model files available. `seed` controls randomized operations; saved configuration alone does not guarantee identical numerical results across machines or software versions.

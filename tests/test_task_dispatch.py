@@ -10,6 +10,9 @@ def test_dispatch_rejects_unimplemented_task(compose_task_config):
 
     with pytest.raises(
         ValueError,
-        match="implemented tasks: benchmark, degrade, download, plot, restore, segment, train",
+        match=(
+            "implemented tasks: benchmark, benchmark_restore, benchmark_segment, "
+            "degrade, download, plot, restore, segment, train"
+        ),
     ):
         dispatch(config)

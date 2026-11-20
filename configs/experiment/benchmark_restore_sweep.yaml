@@ -2,7 +2,7 @@
 
 defaults:
   - /method@task.methods.richardson_lucy: richardson_lucy
-  - override /task: benchmark
+  - override /task: benchmark_restore
   - override /data: bbbc010
   - override /metrics: restoration
   - override /degradation: gaussian_noise

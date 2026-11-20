@@ -1,6 +1,6 @@
 """Restoration-evaluation metrics, organized in three levels of increasing task relevance.
 
-Level 1 (`image`): pixel-wise image quality (MSE, PSNR, SSIM, NRMSE, gradient error, bias, flux ratio).
+Level 1 (`restoration`): pixel-wise image quality (MSE, PSNR, SSIM, NRMSE, gradient error, bias, flux ratio).
 Level 2 (`segmentation`): conservation of scientific information (segmentation,
 detection, quantitative-measure agreement).
 Level 3 (`downstream`): relevance for the final application (structure
@@ -17,7 +17,7 @@ from .downstream import (
     NucleusCountTask,
     ObjectDensityTask,
 )
-from .image import MSE, PSNR, SSIM, bias, flux_ratio, gradient_error, mae, mse, nrmse, psnr, ssim
+from .restoration import MSE, PSNR, SSIM, bias, flux_ratio, gradient_error, mae, mse, nrmse, psnr, ssim
 from .segmentation import (
     DetectionAgreement,
     SegmentationAgreement,

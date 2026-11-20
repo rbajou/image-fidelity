@@ -9,12 +9,12 @@ import numpy as np
 
 from image_fidelity.metrics import bias, flux_ratio, gradient_error, nrmse, psnr, ssim
 
-from .results import EvaluationResult
+from image_fidelity.evaluation.results import EvaluationResult
 
 RestorationMethod = Callable[[np.ndarray], np.ndarray]
 
 
-class Evaluator:
+class RestorationEvaluator:
     """Apply a restoration method once, then score its output against a reference."""
 
     def __init__(self, data_range: float = 1.0, ssim_window_size: int = 7):
@@ -72,3 +72,6 @@ class Evaluator:
             parameters=dict(parameters or {}),
             reconstruction=reconstruction,
         )
+
+
+Evaluator = RestorationEvaluator

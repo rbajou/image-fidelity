@@ -1,0 +1,13 @@
+name: benchmark_restore
+
+split: test
+max_samples: null
+image_samples: 4
+
+save:
+  predictions: false
+  results: true
+  images: true
+  figures: true
+
+methods: {}

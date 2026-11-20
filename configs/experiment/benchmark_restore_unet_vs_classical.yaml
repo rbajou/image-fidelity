@@ -21,7 +21,7 @@ defaults:
   - /method@task.methods.tv_w0p05: tv
   - /method@task.methods.tv_w0p10: tv
   - /method@task.methods.tv_w0p20: tv
-  - override /task: benchmark
+  - override /task: benchmark_restore
   - override /data: bbbc038
   - override /metrics: restoration
   - override /degradation: gaussian_noise

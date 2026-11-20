@@ -7,14 +7,15 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from image_fidelity.benchmark import BenchmarkRunner, BenchmarkSample, Experiment, parameter_sweep
-from image_fidelity.benchmark import runner as benchmark_runner
-from image_fidelity.evaluation import Evaluator, summarize_results
+from image_fidelity.benchmark import restoration_runner as benchmark_runner
+from image_fidelity.evaluation import summarize_results
+from image_fidelity.restoration.evaluation import RestorationEvaluator
 
 
 def test_evaluator_returns_common_scores_and_flat_result_record():
     """Evaluation scores and metadata are available in a flat result record."""
     reference = np.linspace(0, 1, 64, dtype=np.float32).reshape(8, 8)
-    result = Evaluator().evaluate(
+    result = RestorationEvaluator().evaluate(
         lambda observed: observed,
         reference,
         reference,
@@ -112,7 +113,10 @@ def test_benchmark_runner_saves_one_preview_per_experiment(tmp_path):
     ]
 
     output_dir = BenchmarkRunner(tmp_path).run(
-        samples, experiments, benchmark_id="preview", save_predictions=False, image_samples=2
+        samples, experiments, benchmark_id="preview", save_predictions=False, image_samples=2, save_figures=True
     )
 
     assert len(list((output_dir / "images").glob("*.png"))) == 2
+    assert (output_dir / "figures" / "metric_distributions_identity.png").is_file()
+    assert (output_dir / "figures" / "metric_distributions_clip.png").is_file()
+    assert not (output_dir / "figures" / "metric_distributions.png").exists()

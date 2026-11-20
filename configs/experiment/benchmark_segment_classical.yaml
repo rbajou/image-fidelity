@@ -2,7 +2,7 @@
 
 defaults:
   - /method@task.methods.watershed_1: watershed
-  - override /task: benchmark
+  - override /task: benchmark_segment
   - override /data: bbbc038
   - override /metrics: segmentation
   - override /degradation: gaussian_noise

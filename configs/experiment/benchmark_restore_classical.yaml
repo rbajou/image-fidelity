@@ -5,7 +5,7 @@ defaults:
   - /method@task.methods.median: median
   - /method@task.methods.nlm: nlm
   - /method@task.methods.tv: tv
-  - override /task: benchmark
+  - override /task: benchmark_restore
   - override /data: bbbc038
   - override /metrics: restoration
   - override /degradation: gaussian_noise

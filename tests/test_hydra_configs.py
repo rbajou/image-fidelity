@@ -15,9 +15,24 @@ def test_hydra_configs_compose_classical_benchmark():
     with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
         config = compose(config_name="config", overrides=["experiment=benchmark_restore_classical"])
 
-    assert config.task.name == "benchmark"
+    assert config.task.name == "benchmark_restore"
     assert set(config.task.methods) == {"gaussian", "median", "nlm", "tv"}
     assert config.degradation.sigma == pytest.approx(0.1)
+
+
+def test_hydra_configs_compose_segmentation_benchmark():
+    """The segmentation benchmark composes an annotated split and matching U-Net model."""
+    with initialize_config_dir(version_base=None, config_dir=str(CONFIG_DIR)):
+        config = compose(
+            config_name="config",
+            overrides=["experiment=benchmark_segment_unet_vs_classical"],
+        )
+
+    assert config.task.name == "benchmark_segment"
+    assert config.task.split == "validation"
+    assert set(config.task.methods) == {"unet", "watershed"}
+    assert config.task.methods.unet.model._target_ == "image_fidelity.nn.models.UNet"
+    assert config.model.out_channels == 1
 
 
 def test_hydra_callback_is_registered_from_tasks_package():
@@ -33,11 +48,12 @@ def test_hydra_callback_is_registered_from_tasks_package():
 @pytest.mark.parametrize(
     ("experiment_name", "expected_task", "expected_run_name"),
     [
-        ("benchmark_restore_classical", "benchmark", "classical_bbbc038"),
-        ("benchmark_restore_sweep", "benchmark", "sweep_bbbc010"),
-        ("benchmark_restore_unet_static_vs_variable_nl", "benchmark", "unet_static_vs_variable_nl"),
-        ("benchmark_restore_unet_vs_classical", "benchmark", "unet_vs_classical_bbbc038"),
-        ("benchmark_segment_classical", "benchmark", "segment_classical"),
+        ("benchmark_restore_classical", "benchmark_restore", "classical_bbbc038"),
+        ("benchmark_restore_sweep", "benchmark_restore", "sweep_bbbc010"),
+        ("benchmark_restore_unet_static_vs_variable_nl", "benchmark_restore", "unet_static_vs_variable_nl"),
+        ("benchmark_restore_unet_vs_classical", "benchmark_restore", "unet_vs_classical_bbbc038"),
+        ("benchmark_segment_classical", "benchmark_segment", "segment_classical"),
+        ("benchmark_segment_unet_vs_classical", "benchmark_segment", "segment_unet_vs_watershed_bbbc038"),
         ("finetune_unet", "train", "unet_bbbc038"),
         ("restore_nlm", "restore", "nlm_bbbc038"),
         ("restore_unet", "restore", "unet_bbbc038"),
@@ -66,6 +82,8 @@ def test_experiment_run_names_are_included_in_output_dirs(experiment_name, expec
     ("task_group", "task_name"),
     [
         ("benchmark", "benchmark"),
+        ("benchmark_restore", "benchmark_restore"),
+        ("benchmark_segment", "benchmark_segment"),
         ("restore", "restore"),
         ("segment", "segment"),
         ("train_restoration", "train"),

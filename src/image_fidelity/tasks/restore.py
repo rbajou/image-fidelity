@@ -11,7 +11,8 @@ from omegaconf import DictConfig, OmegaConf
 
 from image_fidelity.datasets import load_samples, sample_id, seed_component
 from image_fidelity.benchmark import write_results_tables
-from image_fidelity.evaluation import Evaluator, select_group_columns
+from image_fidelity.evaluation import select_group_columns
+from image_fidelity.restoration.evaluation import RestorationEvaluator
 from image_fidelity.metrics import mse
 from image_fidelity.visualization import save_before_after, save_run_figures
 
@@ -23,7 +24,7 @@ def run_restore(config: DictConfig) -> Path:
     _, samples = load_samples(config)
     restorer = instantiate(config.method)
     degradation = instantiate(config.degradation)
-    evaluator = Evaluator(data_range=float(config.metrics.get("data_range", 1.0)))
+    evaluator = RestorationEvaluator(data_range=float(config.metrics.get("data_range", 1.0)))
     output_dir = Path(config.paths.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     method_name = str(config.method._target_).rsplit(".", 1)[-1]

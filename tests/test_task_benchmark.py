@@ -1,9 +1,9 @@
-from image_fidelity.benchmark import runner as benchmark_runner
+from image_fidelity.benchmark import restoration_runner as benchmark_runner
 from image_fidelity.tasks import dispatch
 
 
 def test_benchmark_dispatch_runs_configured_methods(compose_task_config, monkeypatch):
-    """The benchmark task runs configured methods and writes its result tables."""
+    """The restoration benchmark task runs configured methods and writes result tables."""
 
     def fake_write_results_tables(records, output_dir, group_by):
         assert len(records) == 4

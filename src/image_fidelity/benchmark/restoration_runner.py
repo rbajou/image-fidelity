@@ -1,4 +1,4 @@
-"""Run method comparisons and persist reproducible benchmark artifacts."""
+"""Run restoration comparisons and persist reproducible benchmark artifacts."""
 
 from __future__ import annotations
 
@@ -12,11 +12,12 @@ from typing import Any, Iterable, Mapping
 
 import numpy as np
 
-from image_fidelity.evaluation import Evaluator, select_group_columns
+from image_fidelity.evaluation import select_group_columns
+from image_fidelity.restoration.evaluation import RestorationEvaluator
 
 from image_fidelity.visualization import save_before_after, save_run_figures
 
-from .experiment import BenchmarkSample, Experiment
+from .experiment import RestorationExperiment, RestorationSample
 from .reporting import write_results_tables
 
 
@@ -31,17 +32,17 @@ NON_GROUP_COLUMNS = (
 )
 
 
-class BenchmarkRunner:
-    """Evaluate configured methods over image pairs and save comparable outputs."""
+class RestorationBenchmarkRunner:
+    """Evaluate configured restorers over image pairs and save restoration outputs."""
 
     def __init__(
         self,
         output_root: str | Path = "results",
-        evaluator: Evaluator | None = None,
+        evaluator: RestorationEvaluator | None = None,
         nest_run_dir: bool = True,
     ):
         self.output_root = Path(output_root)
-        self.evaluator = evaluator or Evaluator()
+        self.evaluator = evaluator or RestorationEvaluator()
         self.nest_run_dir = nest_run_dir
 
     def _create_run_dir(self, benchmark_id: str | None = None) -> Path:
@@ -65,8 +66,8 @@ class BenchmarkRunner:
 
     def run(
         self,
-        samples: Iterable[BenchmarkSample],
-        experiments: Iterable[Experiment],
+        samples: Iterable[RestorationSample],
+        experiments: Iterable[RestorationExperiment],
         *,
         config: Mapping[str, Any] | None = None,
         benchmark_id: str | None = None,
@@ -165,7 +166,7 @@ class BenchmarkRunner:
                 group_columns = select_group_columns(records, exclude=NON_GROUP_COLUMNS)
                 write_results_tables(records, results_dir, group_by=("method", *group_columns))
             if save_figures:
-                save_run_figures(records, figures_dir, boxplot_by_method=True)
+                save_run_figures(records, figures_dir, boxplot_by_method=True, distribution_by_method=True)
 
             run_config = {
                 **dict(config or {}),
@@ -198,3 +199,6 @@ class BenchmarkRunner:
             handler.close()
             logger.removeHandler(handler)
         return output_dir
+
+
+BenchmarkRunner = RestorationBenchmarkRunner

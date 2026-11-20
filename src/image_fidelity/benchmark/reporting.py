@@ -1,4 +1,4 @@
-"""Tabular export and plotting helpers for restoration/benchmark results."""
+"""Tabular export and plotting helpers shared by restoration and segmentation benchmarks."""
 
 from __future__ import annotations
 

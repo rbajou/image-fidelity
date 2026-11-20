@@ -1,0 +1,13 @@
+name: benchmark_segment
+
+split: validation
+max_samples: null
+image_samples: 4
+
+save:
+  predictions: true
+  results: true
+  images: true
+  figures: true
+
+methods: {}

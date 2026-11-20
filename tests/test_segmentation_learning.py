@@ -47,6 +47,22 @@ def test_shared_unet_is_backward_compatible():
         "task=segment", "method=unet_segmenter"
     ]
     assert translate_arguments(["train", "trainer.epochs=1"]) == ["task=train_restoration", "trainer.epochs=1"]
+    assert translate_arguments(["benchmark_restore", "method=gaussian,nlm"]) == [
+        "task=benchmark_restore",
+        "+method@task.methods.gaussian=gaussian",
+        "+method@task.methods.nlm=nlm",
+    ]
+    assert translate_arguments(["benchmark", "method=gaussian,nlm"]) == [
+        "task=benchmark_restore",
+        "+method@task.methods.gaussian=gaussian",
+        "+method@task.methods.nlm=nlm",
+    ]
+    assert translate_arguments(["benchmark_segment"]) == ["task=benchmark_segment"]
+    assert translate_arguments(["benchmark_segment", "method=watershed,unet_segmenter"]) == [
+        "task=benchmark_segment",
+        "+method@task.methods.watershed=watershed",
+        "+method@task.methods.unet_segmenter=unet_segmenter",
+    ]
 
 
 def test_patch_dataset_keeps_image_and_mask_aligned():

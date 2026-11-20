@@ -1,3 +1,4 @@
+# Compatibility task name; new presets should select benchmark_restore or benchmark_segment.
 name: benchmark
 
 split: test

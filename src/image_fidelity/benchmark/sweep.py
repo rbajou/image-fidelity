@@ -5,7 +5,7 @@ from __future__ import annotations
 from itertools import product
 from typing import Any, Iterable, Mapping
 
-from .experiment import Experiment, RestorationFactory
+from .experiment import RestorationExperiment, RestorationFactory
 
 
 def parameter_sweep(
@@ -14,7 +14,7 @@ def parameter_sweep(
     parameter_grid: Mapping[str, Iterable[Any]],
     *,
     first_experiment_id: int = 1,
-) -> list[Experiment]:
+) -> list[RestorationExperiment]:
     """Instantiate one experiment per Cartesian combination of parameters."""
     names = list(parameter_grid)
     values = [list(parameter_grid[name]) for name in names]
@@ -25,7 +25,7 @@ def parameter_sweep(
     for index, combination in enumerate(combinations):
         parameters = dict(zip(names, combination))
         experiments.append(
-            Experiment(
+            RestorationExperiment(
                 experiment_id=first_experiment_id + index,
                 method=method,
                 restorer=factory(**parameters),

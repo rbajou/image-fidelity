@@ -1,0 +1,29 @@
+# @package _global_
+# Benchmark of the trained segmentation U-Net against classical watershed segmentation.
+# Every sample must have a ground-truth instance mask. BBBC038 validation is drawn from
+# annotated stage1_train; the official stage1_test images are unannotated.
+#
+#   imfid experiment=benchmark_segment_unet_vs_classical task.split=validation run_name=bench_val
+#   imfid experiment=benchmark_segment_unet_vs_classical task.split=test run_name=bench_test \
+#       task.methods.unet.checkpoint=outputs/train/<run>/checkpoints/best.pt
+
+defaults:
+  - /method@task.methods.unet: unet_segmenter
+  - /method@task.methods.watershed: watershed
+  - override /task: benchmark_segment
+  - override /data: bbbc038
+  - override /model: segmentation_unet
+  - override /metrics: segmentation
+  # - override /degradation: gaussian_noise
+
+task:
+  split: validation
+  max_samples: null
+  methods:
+    unet:
+      checkpoint: outputs/train/2026-11-20_14-26-41_segmentation_unet_bbbc038/checkpoints/best.pt
+
+# degradation:
+#   sigma: 0.10
+
+run_name: segment_unet_vs_watershed_bbbc038

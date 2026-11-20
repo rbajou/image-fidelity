@@ -9,6 +9,9 @@ defaults:
   - override /degradation: none
 
 task:
-  max_samples: null
+  max_samples: 4
+
+method:
+  checkpoint: outputs/train/2026-11-20_14-26-41_segmentation_unet_bbbc038/checkpoints/best.pt
 
 run_name: unet_bbbc038

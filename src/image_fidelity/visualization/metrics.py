@@ -1,7 +1,8 @@
-"""Metric figures for restoration and benchmark results (distributions, boxplots, parameter sweeps)."""
+"""Metric figures for restoration and segmentation benchmarks (distributions, boxplots, parameter sweeps)."""
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -163,17 +164,34 @@ def plot_metric_sweep(
     return _save(figure, path)
 
 
-def save_run_figures(records, figures_dir: str | Path, *, boxplot_by_method: bool = False) -> list[Path]:
+def save_run_figures(
+    records,
+    figures_dir: str | Path,
+    *,
+    boxplot_by_method: bool = False,
+    distribution_by_method: bool = False,
+) -> list[Path]:
     """Write the per-run distribution figure and its boxplots from per-image result records.
 
     With ``boxplot_by_method`` the boxplots compare methods (and are skipped for a single
-    method); otherwise one box per metric summarises the whole run.
+    method); otherwise one box per metric summarises the whole run. With
+    ``distribution_by_method``, write one distribution per method instead of pooling scores.
     """
     import pandas as pd
 
     runs = pd.DataFrame(records)
     figures_dir = Path(figures_dir)
-    paths = [plot_metric_distributions(runs, figures_dir / "metric_distributions.png")]
+    if distribution_by_method:
+        groups = list(runs.groupby("method", sort=False))
+        names = [re.sub(r"[^A-Za-z0-9_.-]+", "_", str(name)).strip("._") or "sample" for name, _ in groups]
+        if len({name.casefold() for name in names}) != len(names):
+            raise ValueError("Method names produce duplicate distribution filenames")
+        paths = [
+            plot_metric_distributions(frame, figures_dir / f"metric_distributions_{name}.png")
+            for name, (_, frame) in zip(names, groups)
+        ]
+    else:
+        paths = [plot_metric_distributions(runs, figures_dir / "metric_distributions.png")]
     if not boxplot_by_method:
         paths.append(plot_metric_boxplots(runs, figures_dir / "metric_boxplots.png"))
     elif runs["method"].nunique() > 1:

@@ -5,7 +5,8 @@ from typing import Callable
 
 from omegaconf import DictConfig
 
-from .benchmark import run_benchmark
+from .benchmark_restore import run_restoration_benchmark
+from .benchmark_segment import run_segmentation_benchmark
 from .degrade import run_degrade
 from .download import run_download
 from .plot import run_plot
@@ -16,7 +17,9 @@ from .train import run_training_task
 TASK_HANDLERS: dict[str, Callable[[DictConfig], Path]] = {
     "restore": run_restore,
     "segment": run_segment,
-    "benchmark": run_benchmark,
+    "benchmark": run_restoration_benchmark,
+    "benchmark_restore": run_restoration_benchmark,
+    "benchmark_segment": run_segmentation_benchmark,
     "train": run_training_task,
     "degrade": run_degrade,
     "plot": run_plot,

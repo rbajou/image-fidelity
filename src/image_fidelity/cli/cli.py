@@ -12,9 +12,18 @@ from omegaconf import DictConfig
 from image_fidelity.tasks import dispatch
 
 CONFIG_DIR = Path(__file__).resolve().parents[3] / "configs"
-TASKS = ("restore", "segment", "benchmark", "train", "plot", "download")
+TASKS = (
+    "restore",
+    "segment",
+    "benchmark",
+    "benchmark_restore",
+    "benchmark_segment",
+    "train",
+    "plot",
+    "download",
+)
 # Leading task names whose Hydra task group has a different name; `train` keeps selecting restoration training.
-TASK_GROUPS = {"train": "train_restoration"}
+TASK_GROUPS = {"train": "train_restoration", "benchmark": "benchmark_restore"}
 HYDRA_FLAGS_WITH_VALUE = {"--config-path", "-cp", "--config-name", "-cn", "--config-dir", "-cd"}
 
 
@@ -31,7 +40,7 @@ def _is_sweep(argument: str) -> bool:
 def translate_arguments(arguments: list[str]) -> list[str]:
     """Turn ``imfid [task] overrides...`` into Hydra arguments.
 
-    A leading task name becomes ``task=<name>``. For ``benchmark``, a comma-separated
+    A leading task name becomes ``task=<name>``. For benchmark tasks, a comma-separated
     ``method=a,b,c`` selects several methods compared in a single run; any other
     comma-separated override starts a Hydra multirun sweep.
     """
@@ -41,7 +50,7 @@ def translate_arguments(arguments: list[str]) -> list[str]:
         task = arguments.pop(0)
         arguments.insert(0, f"task={TASK_GROUPS.get(task, task)}")
 
-    if task == "benchmark":
+    if task in {"benchmark", "benchmark_restore", "benchmark_segment"}:
         translated = []
         for argument in arguments:
             if argument.startswith("method=") and argument.count("=") == 1:
