@@ -17,7 +17,9 @@ from .downstream import (
     NucleusCountTask,
     ObjectDensityTask,
 )
+from .results import EvaluationResult
 from .restoration import MSE, PSNR, SSIM, bias, flux_ratio, gradient_error, mae, mse, nrmse, psnr, ssim
+from .statistics import select_group_columns, summarize_results
 from .segmentation import (
     DetectionAgreement,
     SegmentationAgreement,
@@ -30,6 +32,10 @@ from .segmentation import (
 
 __all__ = [
     "Metric",
+    # Result tables
+    "EvaluationResult",
+    "select_group_columns",
+    "summarize_results",
     # Level 1 - image quality
     "mae",
     "mse",

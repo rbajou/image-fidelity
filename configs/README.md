@@ -24,10 +24,10 @@ Inspect a configuration before running it:
 
 ```bash
 imfid restore method=gaussian degradation=gaussian_noise --cfg job
-imfid experiment=train_restoration_unet trainer.device=cpu --cfg job
+imfid experiment=train_restore_unet trainer.device=cpu --cfg job
 ```
 
-`imfid restore`, `benchmark_restore`, `benchmark_segment`, `train`, `plot` and `download` support leading task names. `imfid benchmark` remains a shorthand alias for restoration benchmarking. `imfid train` selects restoration training (`task=train_restoration`); for segmentation training use `imfid experiment=train_segmentation_unet` or `task=train_segmentation`. For degradation and segmentation, use `imfid task=degrade` and `imfid task=segment`, or an experiment preset.
+`imfid restore`, `benchmark_restore`, `benchmark_segment`, `train`, `plot` and `download` support leading task names. `imfid benchmark` remains a shorthand alias for restoration benchmarking. `imfid train` selects restoration training (`task=train_restore`); for segmentation training use `imfid experiment=train_segment_unet` or `task=train_segment`. For degradation and segmentation, use `imfid task=degrade` and `imfid task=segment`, or an experiment preset.
 
 The default configuration selects `task=restore`, `data=bbbc038_small`, `method=nlm` and `degradation=none`. A restoration run therefore needs an explicit degradation to evaluate noise removal.
 
@@ -101,18 +101,18 @@ Select a preset with `imfid experiment=<name>`. The name is the filename under `
 | `restore_nlm`                                  | NLM restoration on BBBC038                                                                                 |
 | `benchmark_restore_classical`                  | Gaussian, median, NLM and TV comparison on BBBC038                                                         |
 | `benchmark_restore_sweep`                      | Richardson–Lucy on BBBC010 across Gaussian noise levels; requires `-m` and an explicit data-path check     |
-| `train_restoration_unet`                       | Residual U-Net training on BBBC038; defaults to GPU                                                        |
-| `train_segmentation_unet`                      | Binary U-Net segmentation training on annotated BBBC038; defaults to GPU                                   |
+| `train_restore_unet`                           | Residual U-Net training on BBBC038; defaults to GPU                                                        |
+| `train_segment_unet`                           | Binary U-Net segmentation training on annotated BBBC038; defaults to GPU                                   |
 | `finetune_unet`                                | Load initial weights and train at a lower learning rate; requires a checkpoint and matching model settings |
 | `restore_unet`                                 | BBBC038 U-Net restoration; override the preset's local checkpoint path                                     |
 | `benchmark_restore_unet_vs_classical`          | U-Net/classical comparison on BBBC038; override the checkpoint path                                        |
 | `benchmark_restore_unet_static_vs_variable_nl` | Comparison of several trained U-Nets across noise levels; requires three supplied checkpoints and `-m`     |
 | `benchmark_segment_classical`                  | Watershed segmentation benchmark across noise levels; requires annotated samples                           |
-| `benchmark_segment_unet_vs_classical`          | U-Net/watershed segmentation benchmark on BBBC038; requires a checkpoint and annotated samples              |
+| `benchmark_segment_unet_vs_classical`          | U-Net/watershed segmentation benchmark on BBBC038; requires a checkpoint and annotated samples             |
 | `segment_watershed`                            | Classical instance segmentation on BBBC038 training images                                                 |
 | `segment_unet`                                 | Binary U-Net inference with connected-component instance labels; requires a checkpoint                     |
 
-`degrade_gaus` is a preview preset; its sample count should be set with `task.max_samples` (its root-level `max_samples` does not control the loader). The `dncnn` model is a placeholder.
+`degrade_gaus` is a preview preset; its sample count should be set with `task.max_samples` (its root-level `max_samples` does not control the loader).
 
 ## Restore and compare
 
@@ -170,7 +170,7 @@ Each job writes into a numbered directory. When result tables are available, a H
 Install `.[learning,benchmark,visualization]` as described in [INSTALL](../INSTALL). Prepare BBBC038, then try one epoch on CPU:
 
 ```bash
-imfid experiment=train_restoration_unet trainer.device=cpu trainer.epochs=1 trainer.num_workers=0
+imfid experiment=train_restore_unet trainer.device=cpu trainer.epochs=1 trainer.num_workers=0
 ```
 
 The preset uses a 2D U-Net with residual prediction, random 128 × 128 crops and Gaussian noise. It defaults to 100 epochs and CUDA; choose settings appropriate to your machine. Validation runs each epoch. Training saves `checkpoints/best.pt` and `checkpoints/last.pt`, then evaluates the best weights on the test split; disable that pass with `task.run_test=false`.
@@ -178,7 +178,7 @@ The preset uses a 2D U-Net with residual prediction, random 128 × 128 crops and
 To train with a noise level drawn separately for each patch:
 
 ```bash
-imfid experiment=train_restoration_unet trainer.device=cpu \
+imfid experiment=train_restore_unet trainer.device=cpu \
   task.noise.mode=variable task.noise.param=sigma \
   task.noise.min=0.02 task.noise.max=0.2
 ```
@@ -211,7 +211,7 @@ The finetuning preset loads model weights, then starts a new optimizer and train
 With annotated BBBC038 training images prepared and `.[learning,benchmark,visualization]` installed:
 
 ```bash
-imfid experiment=train_segmentation_unet trainer.device=cpu \
+imfid experiment=train_segment_unet trainer.device=cpu \
   trainer.epochs=1 trainer.num_workers=0
 ```
 
@@ -302,7 +302,7 @@ imfid --config-path "$PWD/outputs/train/YOUR_RUN/.hydra" --config-name config \
   hydra.run.dir=outputs/train/YOUR_RUN_repro
 ```
 
-This reruns training from its initial weights; it does not continue from a checkpoint. 
+This reruns training from its initial weights; it does not continue from a checkpoint.
 
 To continue from the latest saved weights after an interruption, use the saved configuration and set `task.resume=true` and `task.checkpoint` to the run's `last.pt`:
 

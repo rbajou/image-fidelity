@@ -11,12 +11,13 @@ from omegaconf import DictConfig, OmegaConf
 
 from image_fidelity.datasets import load_samples, sample_id, seed_component
 from image_fidelity.benchmark import write_results_tables
-from image_fidelity.evaluation import select_group_columns
+from image_fidelity.io.naming import safe_name
+from image_fidelity.metrics import select_group_columns
 from image_fidelity.restoration.evaluation import RestorationEvaluator
 from image_fidelity.metrics import mse
 from image_fidelity.visualization import save_before_after, save_run_figures
 
-from .common import NON_GROUP_COLUMNS, degradation_columns, image_sample_count, safe_name
+from .common import NON_GROUP_COLUMNS, degradation_columns, image_sample_count
 
 
 def run_restore(config: DictConfig) -> Path:

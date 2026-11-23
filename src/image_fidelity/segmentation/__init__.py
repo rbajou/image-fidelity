@@ -1,1 +1,1 @@
-"""Segmentation de noyaux."""
+"""Nucleus segmentation."""

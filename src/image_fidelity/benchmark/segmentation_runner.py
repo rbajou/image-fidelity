@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -13,17 +12,14 @@ from typing import Any, Iterable, Mapping
 
 import numpy as np
 
-from image_fidelity.evaluation import select_group_columns
+from image_fidelity.metrics import select_group_columns
 from image_fidelity.segmentation.evaluation import evaluate_instances
 from image_fidelity.visualization import save_run_figures, save_segmentation_preview
 
+from image_fidelity.io.naming import safe_name
+
 from .experiment import SegmentationExperiment, SegmentationSample
 from .reporting import write_results_tables
-
-
-def _safe_name(value: Any) -> str:
-    name = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value)).strip("._")
-    return name or "item"
 
 
 class SegmentationBenchmarkRunner:
@@ -38,7 +34,7 @@ class SegmentationBenchmarkRunner:
         if not self.nest_run_dir:
             return self.output_root
         if benchmark_id is not None:
-            output_dir = self.output_root / _safe_name(benchmark_id)
+            output_dir = self.output_root / safe_name(benchmark_id)
             output_dir.mkdir()
             return output_dir
 
@@ -98,7 +94,7 @@ class SegmentationBenchmarkRunner:
         try:
             logger.info("Starting segmentation benchmark %s", output_dir.name)
             for experiment_index, experiment in enumerate(experiments):
-                method_dirname = _safe_name(experiment.method).lower()
+                method_dirname = safe_name(experiment.method).lower()
                 for sample_index, sample in enumerate(samples):
                     start = perf_counter()
                     prediction = np.asarray(experiment.segmenter(sample.observed))
@@ -146,7 +142,7 @@ class SegmentationBenchmarkRunner:
 
                     artifact_name = (
                         f"{experiment_index:04d}_{sample_index:04d}_"
-                        f"{_safe_name(experiment.experiment_id)}_{_safe_name(sample.image_id)}.npy"
+                        f"{safe_name(experiment.experiment_id)}_{safe_name(sample.image_id)}.npy"
                     )
                     if save_predictions:
                         method_dir = predictions_dir / method_dirname

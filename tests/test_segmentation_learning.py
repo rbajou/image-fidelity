@@ -11,7 +11,6 @@ from torch import nn
 from image_fidelity.datasets import Sample
 from image_fidelity.degradation import IdentityDegradation
 from image_fidelity.nn.models import UNet
-from image_fidelity.restoration.nn.models import UNet as LegacyUNet
 from image_fidelity.segmentation.nn import TorchSegmenter
 from image_fidelity.segmentation.training import SegmentationPatchDataset
 from image_fidelity.tasks import dispatch
@@ -38,15 +37,11 @@ def _make_dataset(root):
             Image.fromarray(mask * 255).save(folder / "masks" / "mask.png")
 
 
-def test_shared_unet_is_backward_compatible():
-    assert LegacyUNet is UNet
-    old_model = LegacyUNet(base_channels=4, depth=2, residual=True)
-    new_model = UNet(base_channels=4, depth=2, residual=True)
-    new_model.load_state_dict(old_model.state_dict())
+def test_cli_translates_task_names():
     assert translate_arguments(["segment", "method=unet_segmenter"]) == [
         "task=segment", "method=unet_segmenter"
     ]
-    assert translate_arguments(["train", "trainer.epochs=1"]) == ["task=train_restoration", "trainer.epochs=1"]
+    assert translate_arguments(["train", "trainer.epochs=1"]) == ["task=train_restore", "trainer.epochs=1"]
     assert translate_arguments(["benchmark_restore", "method=gaussian,nlm"]) == [
         "task=benchmark_restore",
         "+method@task.methods.gaussian=gaussian",
@@ -112,7 +107,7 @@ def test_segmentation_training_and_inference_end_to_end(tmp_path):
         "model.base_channels=4", "model.depth=2", "model.normalization=none",
     ]
     config = _compose(
-        "experiment=train_segmentation_unet", *common, "trainer.device=cpu",
+        "experiment=train_segment_unet", *common, "trainer.device=cpu",
         "trainer.epochs=1", "trainer.batch_size=2", "trainer.num_workers=0",
         "task.patch_size=16", "task.save_figures=true", f"paths.output_dir={train_output}",
         f"paths.checkpoints_dir={train_output / 'checkpoints'}",
@@ -135,7 +130,7 @@ def test_segmentation_training_and_inference_end_to_end(tmp_path):
 
     resumed_output = tmp_path / "resumed"
     resume_config = _compose(
-        "experiment=train_segmentation_unet", *common, "trainer.device=cpu",
+        "experiment=train_segment_unet", *common, "trainer.device=cpu",
         "trainer.epochs=1", "trainer.batch_size=2", "trainer.num_workers=0", "optimizer.lr=0",
         "task.patch_size=16", "task.save_figures=false", "task.run_test=false",
         "task.resume=true", f"task.checkpoint={checkpoint}", f"paths.output_dir={resumed_output}",
@@ -163,7 +158,7 @@ def test_segmentation_training_test_split_without_annotations(tmp_path, caplog):
         mask.unlink()
     output = tmp_path / "out"
     config = _compose(
-        "experiment=train_segmentation_unet", f"data.root_dir={data}", "data.val_fraction=0.34",
+        "experiment=train_segment_unet", f"data.root_dir={data}", "data.val_fraction=0.34",
         "project.device=cpu", "trainer.device=cpu", "trainer.epochs=1", "trainer.batch_size=2",
         "trainer.num_workers=0", "task.patch_size=16", "task.save_figures=false",
         "model.base_channels=4", "model.depth=2", "model.normalization=none",
@@ -180,7 +175,7 @@ def test_restoration_training_still_uses_shared_engine(tmp_path):
     _make_dataset(data)
     output = tmp_path / "restore_train"
     config = _compose(
-        "experiment=train_restoration_unet", f"data.root_dir={data}", "data.val_fraction=0.34",
+        "experiment=train_restore_unet", f"data.root_dir={data}", "data.val_fraction=0.34",
         "trainer.device=cpu", "trainer.epochs=1", "trainer.batch_size=2",
         "trainer.num_workers=0", "task.patch_size=16", "task.save_figures=false",
         "model.base_channels=4", "model.depth=2", "model.normalization=none",

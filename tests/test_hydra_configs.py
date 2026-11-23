@@ -4,7 +4,8 @@ import pytest
 from hydra import compose, initialize_config_dir
 from hydra.utils import instantiate
 from image_fidelity.restoration.classical import RichardsonLucyDeconvolution
-from image_fidelity.restoration.nn import TorchRestorer, UNet
+from image_fidelity.nn.models import UNet
+from image_fidelity.restoration.nn import TorchRestorer
 from image_fidelity.tasks.callbacks import AggregateBenchmarkResults
 
 CONFIG_DIR = Path(__file__).resolve().parents[1] / "configs"
@@ -59,7 +60,7 @@ def test_hydra_callback_is_registered_from_tasks_package():
         ("restore_unet", "restore", "unet_bbbc038"),
         ("segment_unet", "segment", "unet_bbbc038"),
         ("segment_watershed", "segment", "watershed_bbbc038"),
-        ("train_restoration_unet", "train", "unet_bbbc038"),
+        ("train_restore_unet", "train", "unet_bbbc038"),
     ],
 )
 def test_experiment_run_names_are_included_in_output_dirs(experiment_name, expected_task, expected_run_name):
@@ -86,8 +87,8 @@ def test_experiment_run_names_are_included_in_output_dirs(experiment_name, expec
         ("benchmark_segment", "benchmark_segment"),
         ("restore", "restore"),
         ("segment", "segment"),
-        ("train_restoration", "train"),
-        ("train_segmentation", "train"),
+        ("train_restore", "train"),
+        ("train_segment", "train"),
     ],
 )
 def test_task_name_is_output_suffix_without_named_experiment(task_group, task_name):

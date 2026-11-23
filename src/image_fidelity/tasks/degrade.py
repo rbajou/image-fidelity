@@ -9,9 +9,8 @@ from hydra.utils import instantiate
 from omegaconf import DictConfig
 
 from image_fidelity.datasets import load_samples, sample_id, seed_component
+from image_fidelity.io.naming import safe_name
 from image_fidelity.visualization import save_image_pair
-
-from .common import safe_name
 
 
 def run_degrade(config: DictConfig) -> Path:

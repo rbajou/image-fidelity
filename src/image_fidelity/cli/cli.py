@@ -19,11 +19,13 @@ TASKS = (
     "benchmark_restore",
     "benchmark_segment",
     "train",
+    "train_restore", 
+    "train_segment",
     "plot",
     "download",
 )
 # Leading task names whose Hydra task group has a different name; `train` keeps selecting restoration training.
-TASK_GROUPS = {"train": "train_restoration", "benchmark": "benchmark_restore"}
+TASK_GROUPS = {"train": "train_restore", "benchmark": "benchmark_restore"}
 HYDRA_FLAGS_WITH_VALUE = {"--config-path", "-cp", "--config-name", "-cn", "--config-dir", "-cd"}
 
 

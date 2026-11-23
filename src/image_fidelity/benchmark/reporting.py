@@ -1,11 +1,11 @@
-"""Tabular export and plotting helpers shared by restoration and segmentation benchmarks."""
+"""Tabular export shared by restoration and segmentation benchmarks."""
 
 from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from image_fidelity.evaluation.statistics import summarize_results
+from image_fidelity.metrics.statistics import summarize_results
 
 
 def write_results_tables(
@@ -37,38 +37,3 @@ def write_results_tables(
     pd.DataFrame(summaries).to_parquet(summary_path, index=False)
     return runs_path, summary_path
 
-
-def plot_metric_vs_parameter(
-    records: Sequence[Mapping[str, Any]],
-    parameter: str,
-    metric: str,
-    output_path: str | Path,
-) -> Path:
-    """Plot a metric against one numeric parameter, with a line per method."""
-    try:
-        import matplotlib.pyplot as plt
-    except ImportError as exc:
-        raise ImportError("Plotting requires matplotlib; install the 'visualization' extra.") from exc
-
-    grouped: dict[str, dict[float, list[float]]] = {}
-    for record in records:
-        if parameter not in record or metric not in record:
-            raise ValueError(f"records must contain {parameter!r} and {metric!r}")
-        grouped.setdefault(str(record["method"]), {}).setdefault(float(record[parameter]), []).append(
-            float(record[metric])
-        )
-
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    figure, axis = plt.subplots()
-    for method, points in grouped.items():
-        x_values = sorted(points)
-        y_values = [sum(points[x]) / len(points[x]) for x in x_values]
-        axis.plot(x_values, y_values, marker="o", label=method)
-    axis.set_xlabel(parameter)
-    axis.set_ylabel(metric)
-    axis.legend()
-    figure.tight_layout()
-    figure.savefig(output_path, dpi=160)
-    plt.close(figure)
-    return output_path

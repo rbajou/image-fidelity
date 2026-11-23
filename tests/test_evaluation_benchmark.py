@@ -6,9 +6,9 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from image_fidelity.benchmark import BenchmarkRunner, BenchmarkSample, Experiment, parameter_sweep
+from image_fidelity.benchmark import RestorationBenchmarkRunner, RestorationExperiment, RestorationSample
 from image_fidelity.benchmark import restoration_runner as benchmark_runner
-from image_fidelity.evaluation import summarize_results
+from image_fidelity.metrics import summarize_results
 from image_fidelity.restoration.evaluation import RestorationEvaluator
 
 
@@ -35,19 +35,6 @@ def test_evaluator_returns_common_scores_and_flat_result_record():
     assert record["NRMSE"] == 0.0
     assert record["runtime"] >= 0.0
     assert result.reconstruction.shape == reference.shape
-
-
-def test_parameter_sweep_instantiates_cartesian_combinations():
-    """A parameter sweep creates one experiment for each Cartesian combination."""
-    experiments = parameter_sweep(
-        "test-method",
-        lambda scale, iterations: lambda image: image * scale + iterations * 0,
-        {"scale": [1, 2], "iterations": [3, 4]},
-    )
-
-    assert len(experiments) == 4
-    assert experiments[0].parameters == {"scale": 1, "iterations": 3}
-    assert experiments[-1].experiment_id == 4
 
 
 def test_summaries_preserve_method_specific_parameter_columns():
@@ -82,7 +69,7 @@ def test_runner_writes_benchmark_artifact_tree(tmp_path, monkeypatch):
     monkeypatch.setattr(benchmark_runner, "write_results_tables", fake_write_results_tables)
     reference = np.linspace(0, 1, 64, dtype=np.float32).reshape(8, 8)
     samples = [
-        BenchmarkSample(
+        RestorationSample(
             image_id="cell-1",
             observed=reference + 0.01,
             reference=reference,
@@ -90,9 +77,9 @@ def test_runner_writes_benchmark_artifact_tree(tmp_path, monkeypatch):
             parameters={"photons": 100},
         )
     ]
-    experiments = [Experiment(1, "identity", lambda image: image, {"iterations": 0})]
+    experiments = [RestorationExperiment(1, "identity", lambda image: image, {"iterations": 0})]
 
-    output_dir = BenchmarkRunner(tmp_path).run(samples, experiments, benchmark_id="benchmark-test")
+    output_dir = RestorationBenchmarkRunner(tmp_path).run(samples, experiments, benchmark_id="benchmark-test")
 
     assert (output_dir / "config.yaml").is_file()
     assert (output_dir / "metadata.json").is_file()
@@ -106,13 +93,13 @@ def test_runner_writes_benchmark_artifact_tree(tmp_path, monkeypatch):
 def test_benchmark_runner_saves_one_preview_per_experiment(tmp_path):
     """Preview images are saved per experiment when prediction saving is disabled."""
     reference = np.linspace(0, 1, 16, dtype=np.float32).reshape(4, 4)
-    samples = [BenchmarkSample(image_id=i, observed=reference * 0.5, reference=reference) for i in range(3)]
+    samples = [RestorationSample(image_id=i, observed=reference * 0.5, reference=reference) for i in range(3)]
     experiments = [
-        Experiment(1, "identity", lambda image: image),
-        Experiment(2, "clip", lambda image: np.clip(image, 0, 0.3)),
+        RestorationExperiment(1, "identity", lambda image: image),
+        RestorationExperiment(2, "clip", lambda image: np.clip(image, 0, 0.3)),
     ]
 
-    output_dir = BenchmarkRunner(tmp_path).run(
+    output_dir = RestorationBenchmarkRunner(tmp_path).run(
         samples, experiments, benchmark_id="preview", save_predictions=False, image_samples=2, save_figures=True
     )
 

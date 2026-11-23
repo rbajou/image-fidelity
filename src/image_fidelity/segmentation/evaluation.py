@@ -1,8 +1,8 @@
-"""Comparaison d'une segmentation d'instances à une vérité terrain (ex. BBBC038)."""
+"""Comparison of an instance segmentation against ground truth (e.g. BBBC038)."""
 
 from __future__ import annotations
 
-from typing import Callable, Dict, Iterable, Optional
+from typing import Dict, Iterable
 
 import numpy as np
 from scipy.optimize import linear_sum_assignment
@@ -13,7 +13,7 @@ DSB_THRESHOLDS = tuple(np.round(np.arange(0.5, 1.0, 0.05), 2))
 
 
 def _iou_matrix(pred: np.ndarray, gt: np.ndarray) -> np.ndarray:
-    """Matrice IoU (n_pred x n_gt) via table de contingence ; les étiquettes 0 sont ignorées."""
+    """IoU matrix (n_pred x n_gt) from a contingency table; label 0 is ignored."""
     pred_ids, pred_inv = np.unique(pred, return_inverse=True)
     gt_ids, gt_inv = np.unique(gt, return_inverse=True)
     inter = np.zeros((len(pred_ids), len(gt_ids)), dtype=np.int64)
@@ -25,10 +25,10 @@ def _iou_matrix(pred: np.ndarray, gt: np.ndarray) -> np.ndarray:
 
 
 def _count_matches(iou: np.ndarray, threshold: float) -> int:
-    """Taille d'un appariement un-à-un maximal des paires dont l'IoU dépasse `threshold`.
+    """Size of a maximum one-to-one matching of pairs whose IoU exceeds `threshold`.
 
-    Une comparaison seuillée seule peut compter un objet deux fois : avec un seuil d'IoU
-    inclusif à 0.5, un objet prédit qui fusionne deux objets égaux atteint exactement 0.5 avec chacun.
+    A bare threshold comparison can count an object twice: with an inclusive IoU
+    threshold of 0.5, a predicted object merging two equal objects reaches exactly 0.5 with each.
     """
     candidates = iou > threshold
     if not candidates.any():
@@ -42,13 +42,13 @@ def evaluate_instances(
     ground_truth: np.ndarray,
     thresholds: Iterable[float] = DSB_THRESHOLDS,
 ) -> Dict[str, float]:
-    """Métriques par image : Dice/IoU du masque binaire, comptage, P/R/F1 à IoU=0.5 et AP moyenne (style DSB 2018).
+    """Per-image metrics: binary-mask Dice/IoU, count, P/R/F1 at IoU=0.5 and mean AP (DSB 2018 style).
 
-    Chaque objet prédit et chaque objet de vérité terrain sont appariés au plus
-    une fois ; l'appariement est un-à-un maximal, sans heuristique gloutonne.
+    Each predicted and each ground-truth object is matched at most once; the
+    matching is a maximum one-to-one assignment, not a greedy heuristic.
     """
     if prediction.shape != ground_truth.shape:
-        raise ValueError(f"Formes différentes : {prediction.shape} vs {ground_truth.shape}")
+        raise ValueError(f"Shape mismatch: {prediction.shape} vs {ground_truth.shape}")
     iou = _iou_matrix(prediction, ground_truth)
     n_pred, n_gt = iou.shape
 
@@ -75,25 +75,3 @@ def evaluate_instances(
         "f1": f1,
         "ap": mean_ap,
     }
-
-
-def evaluate_dataset(
-    dataset,
-    segmenter: Callable[[np.ndarray], np.ndarray],
-    max_samples: Optional[int] = None,
-) -> Dict[str, object]:
-    """Applique `segmenter` à chaque échantillon annoté et renvoie métriques par image + moyennes.
-
-    `dataset` fournit des `Sample` avec `target` = masque d'instances (cf. `BBBC038Dataset`).
-    Les échantillons sans vérité terrain sont ignorés.
-    """
-    per_image: Dict[str, Dict[str, float]] = {}
-    for i in range(len(dataset) if max_samples is None else min(max_samples, len(dataset))):
-        sample = dataset[i]
-        if sample.target is None:
-            continue
-        pred = segmenter(sample.image)
-        per_image[sample.metadata["sample_id"]] = evaluate_instances(pred, sample.target)
-    keys = next(iter(per_image.values())).keys() if per_image else []
-    mean = {k: float(np.mean([m[k] for m in per_image.values()])) for k in keys}
-    return {"per_image": per_image, "mean": mean}

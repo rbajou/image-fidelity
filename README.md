@@ -74,7 +74,7 @@ For help interpreting scores, see [Reading the results](docs/reading-results.md)
 
 The package is under active development. Implemented classical restoration methods include Gaussian, median, bilateral and non-local means filters, Wiener and Richardson–Lucy deconvolution, and Tikhonov and total variation regularization. Only some have ready-made presets in `configs/method/`.
 
-The documented learning workflow is a 2D U-Net. Learned segmentation and DnCNN configurations are placeholders. Generic array readers do not imply that every task supports volumetric data.
+The documented learning workflow is a 2D U-Net. Generic array readers do not imply that every task supports volumetric data.
 
 See [INSTALL](INSTALL#development-and-tests) for development prerequisites and tests. Seeds and saved configurations support reproducibility, but identical numerical results across hardware and software environments are not guaranteed.
 

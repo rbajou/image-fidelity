@@ -1,7 +1,7 @@
 # @package _global_
 
 defaults:
-  - override /task: train_segmentation
+  - override /task: train_segment
   - override /data: bbbc038
   - override /model: segmentation_unet
   - override /optimizer: adamw

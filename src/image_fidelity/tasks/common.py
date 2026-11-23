@@ -2,16 +2,11 @@
 
 from __future__ import annotations
 
-import re
 from typing import Any
 
 from omegaconf import DictConfig, OmegaConf
 
 NON_GROUP_COLUMNS = ("experiment_id", "image_id", "seed", "method", "runtime")
-
-
-def safe_name(value: str) -> str:
-    return re.sub(r"[^A-Za-z0-9_.-]+", "_", value).strip("._") or "sample"
 
 
 def degradation_columns(config: DictConfig) -> dict[str, Any]:

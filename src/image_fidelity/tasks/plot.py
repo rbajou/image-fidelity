@@ -14,8 +14,7 @@ from image_fidelity.visualization import (
     plot_metric_sweep,
     swept_parameters,
 )
-from .common import safe_name
-from .common import safe_name
+from image_fidelity.io.naming import safe_name
 
 LOGGER = logging.getLogger(__name__)
 

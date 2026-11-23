@@ -1,6 +1,5 @@
-"""PyTorch models and restorers for neural image restoration."""
+"""Adapters exposing trained PyTorch models through the NumPy ``Restorer`` interface."""
 
-from .models import UNet
-from .torch_restorer import TorchRestorer, from_tensor, load_checkpoint, to_tensor
+from .torch_restorer import TorchRestorer
 
-__all__ = ["TorchRestorer", "UNet", "from_tensor", "load_checkpoint", "to_tensor"]
+__all__ = ["TorchRestorer"]

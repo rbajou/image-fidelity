@@ -1,4 +1,4 @@
-"""Baseline sans apprentissage : seuillage, morphologie, distance, watershed."""
+"""Learning-free baseline: thresholding, morphology, distance transform and watershed."""
 
 from __future__ import annotations
 
@@ -14,14 +14,14 @@ from skimage.feature import peak_local_max
 @dataclass(frozen=True)
 class WatershedConfig:
     threshold: Literal["otsu", "local"] = "otsu"
-    local_block_size: int = 51  # forcé impair, pour le seuillage local
+    local_block_size: int = 51  # forced odd, for local thresholding
     local_offset: float = 0.0
-    bright_objects: bool | Literal["auto"] = True  # False : noyaux sombres ; "auto" : classe minoritaire
-    sigma: float = 1.0  # lissage gaussien préalable (0 = aucun)
+    bright_objects: bool | Literal["auto"] = True  # False: dark nuclei; "auto": minority class
+    sigma: float = 1.0  # Gaussian pre-smoothing (0 = none)
     opening_radius: int = 2
-    min_size: int = 30  # taille minimale des objets / trous (pixels)
-    min_distance: int = 5  # distance minimale entre marqueurs
-    h_maxima: float | None = None  # si défini, marqueurs = h-maxima de la distance
+    min_size: int = 30  # minimum object / hole size (pixels)
+    min_distance: int = 5  # minimum distance between markers
+    h_maxima: float | None = None  # if set, markers are h-maxima of the distance map
     smooth_distance_sigma: float = 1.0
 
 
@@ -30,12 +30,12 @@ def _to_gray(image: np.ndarray) -> np.ndarray:
     if img.ndim == 3:
         img = img.mean(axis=-1)
     if img.ndim != 2:
-        raise ValueError(f"Image 2D attendue (ou HxWxC), reçu {image.shape}")
+        raise ValueError(f"Expected a 2D image (or HxWxC), got {image.shape}")
     return img
 
 
 def _remove_small(mask: np.ndarray, min_size: int) -> np.ndarray:
-    """Retire les composantes connexes de moins de `min_size` pixels."""
+    """Remove connected components smaller than `min_size` pixels."""
     labels, n = ndi.label(mask)
     if n == 0:
         return mask
@@ -45,7 +45,7 @@ def _remove_small(mask: np.ndarray, min_size: int) -> np.ndarray:
 
 
 def foreground_mask(image: np.ndarray, cfg: WatershedConfig = WatershedConfig()) -> np.ndarray:
-    """Seuillage (Otsu/local) puis nettoyage morphologique."""
+    """Threshold (Otsu/local), then clean up morphologically."""
     img = _to_gray(image)
     if cfg.sigma > 0:
         img = filters.gaussian(img, sigma=cfg.sigma)
@@ -58,7 +58,7 @@ def foreground_mask(image: np.ndarray, cfg: WatershedConfig = WatershedConfig())
         block = cfg.local_block_size | 1
         mask = img > filters.threshold_local(img, block, offset=cfg.local_offset)
     else:
-        raise ValueError(f"threshold inconnu : {cfg.threshold!r}")
+        raise ValueError(f"Unknown threshold: {cfg.threshold!r}")
     if cfg.bright_objects == "auto":
         bright = img > filters.threshold_otsu(img)
         bright_objects = bright.mean() <= 0.5
@@ -75,7 +75,7 @@ def foreground_mask(image: np.ndarray, cfg: WatershedConfig = WatershedConfig())
 
 
 def watershed_segment(image: np.ndarray, cfg: WatershedConfig = WatershedConfig()) -> np.ndarray:
-    """Segmentation d'instances : renvoie une carte d'étiquettes int32 (0 = fond)."""
+    """Instance segmentation: return an int32 label map (0 = background)."""
     mask = foreground_mask(image, cfg)
     if not mask.any():
         return np.zeros(mask.shape, dtype=np.int32)
@@ -98,12 +98,12 @@ def watershed_segment(image: np.ndarray, cfg: WatershedConfig = WatershedConfig(
     counts = np.bincount(labels.ravel())
     keep = counts >= cfg.min_size
     keep[0] = False
-    lut = np.cumsum(keep) * keep  # étiquettes séquentielles, 0 = fond
+    lut = np.cumsum(keep) * keep  # sequential labels, 0 = background
     return lut[labels].astype(np.int32)
 
 
 class WatershedSegmenter:
-    """Callable image -> carte d'instances, utilisable par les tâches et métriques."""
+    """Callable image -> instance map, usable by tasks and metrics."""
 
     def __init__(self, **parameters):
         self.config = WatershedConfig(**parameters)

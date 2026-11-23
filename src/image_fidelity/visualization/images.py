@@ -3,35 +3,10 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Mapping, Optional, Sequence, Tuple
+from typing import Mapping, Optional, Sequence
 
 import numpy as np
 from .params import RCPARAMS
-
-
-def show_before_after(
-    originals: Sequence[np.ndarray],
-    degraded: Sequence[np.ndarray],
-    restored: Optional[Sequence[np.ndarray]] = None,
-    *,
-    titles: Optional[Sequence[str]] = None,
-    show: bool = True,
-) -> Tuple[object, np.ndarray]:
-    """Plot matching original/degraded(/restored) images as rows in one window and return figure and axes."""
-    if not originals:
-        raise ValueError("at least one image pair is required")
-    if len(originals) != len(degraded):
-        raise ValueError("originals and degraded must contain the same number of images")
-    if restored is not None and len(restored) != len(originals):
-        raise ValueError("restored must contain the same number of images as originals")
-
-    plt = _import_pyplot()
-    rows = _rows(originals, degraded, restored)
-    figure, axes = plt.subplots(len(rows), len(originals), squeeze=False, figsize=(4 * len(originals), 4 * len(rows)))
-    _draw(figure, axes, rows, titles)
-    if show:
-        plt.show()
-    return figure, axes
 
 
 def save_before_after(

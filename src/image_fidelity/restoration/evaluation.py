@@ -9,7 +9,7 @@ import numpy as np
 
 from image_fidelity.metrics import bias, flux_ratio, gradient_error, nrmse, psnr, ssim
 
-from image_fidelity.evaluation.results import EvaluationResult
+from image_fidelity.metrics.results import EvaluationResult
 
 RestorationMethod = Callable[[np.ndarray], np.ndarray]
 
@@ -72,6 +72,3 @@ class RestorationEvaluator:
             parameters=dict(parameters or {}),
             reconstruction=reconstruction,
         )
-
-
-Evaluator = RestorationEvaluator

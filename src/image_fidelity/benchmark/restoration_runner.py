@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import logging
-import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -12,18 +11,15 @@ from typing import Any, Iterable, Mapping
 
 import numpy as np
 
-from image_fidelity.evaluation import select_group_columns
+from image_fidelity.metrics import select_group_columns
 from image_fidelity.restoration.evaluation import RestorationEvaluator
 
 from image_fidelity.visualization import save_before_after, save_run_figures
 
+from image_fidelity.io.naming import safe_name
+
 from .experiment import RestorationExperiment, RestorationSample
 from .reporting import write_results_tables
-
-
-def _safe_name(value: Any) -> str:
-    name = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value)).strip("._")
-    return name or "item"
 
 
 NON_GROUP_COLUMNS = (
@@ -52,7 +48,7 @@ class RestorationBenchmarkRunner:
 
         self.output_root.mkdir(parents=True, exist_ok=True)
         if benchmark_id is not None:
-            output_dir = self.output_root / _safe_name(benchmark_id)
+            output_dir = self.output_root / safe_name(benchmark_id)
             output_dir.mkdir()
             return output_dir
 
@@ -109,7 +105,7 @@ class RestorationBenchmarkRunner:
         try:
             logger.info("Starting benchmark %s", output_dir.name)
             for experiment_index, experiment in enumerate(experiments):
-                method_dirname = _safe_name(experiment.method).lower()
+                method_dirname = safe_name(experiment.method).lower()
                 preview_restored: list[np.ndarray] = []
                 for sample_index, sample in enumerate(samples):
                     overlap = sample.parameters.keys() & experiment.parameters.keys()
@@ -134,7 +130,7 @@ class RestorationBenchmarkRunner:
                     if save_predictions:
                         artifact_name = (
                             f"{experiment_index:04d}_{sample_index:04d}_"
-                            f"{_safe_name(experiment.experiment_id)}_{_safe_name(sample.image_id)}.npy"
+                            f"{safe_name(experiment.experiment_id)}_{safe_name(sample.image_id)}.npy"
                         )
                         method_dir = predictions_dir / method_dirname
                         method_dir.mkdir(exist_ok=True)
@@ -154,8 +150,8 @@ class RestorationBenchmarkRunner:
                 if preview_restored:
                     count = len(preview_restored)
                     save_before_after(
-                        images_dir / f"{experiment_index:04d}_{_safe_name(experiment.experiment_id)}_"
-                        f"{_safe_name(experiment.method)}.png",
+                        images_dir / f"{experiment_index:04d}_{safe_name(experiment.experiment_id)}_"
+                        f"{safe_name(experiment.method)}.png",
                         [np.asarray(sample.reference) for sample in samples[:count]],
                         [np.asarray(sample.observed) for sample in samples[:count]],
                         preview_restored,
@@ -199,6 +195,3 @@ class RestorationBenchmarkRunner:
             handler.close()
             logger.removeHandler(handler)
         return output_dir
-
-
-BenchmarkRunner = RestorationBenchmarkRunner

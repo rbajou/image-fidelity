@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from image_fidelity.restoration.nn.models import UNet
+from image_fidelity.nn.models import UNet
 from image_fidelity.restoration.nn.torch_restorer import TorchRestorer
 
 

@@ -57,6 +57,3 @@ class SegmentationSample:
     parameters: Mapping[str, Any] = field(default_factory=dict)
     metadata: Mapping[str, Any] = field(default_factory=dict)
 
-
-Experiment = RestorationExperiment
-BenchmarkSample = RestorationSample
